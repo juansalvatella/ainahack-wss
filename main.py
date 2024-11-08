@@ -10,6 +10,10 @@ executor = ThreadPoolExecutor()
 jambonz_queue = asyncio.Queue()
 other_ws_queue = asyncio.Queue()
 
+memory = []
+
+actionHook = "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
+
 @app.websocket("/dani_test")
 async def dani_websocket(websocket: WebSocket):
     await websocket.accept()
@@ -51,7 +55,7 @@ async def jambonz_websocket(websocket: WebSocket):
                             "say": {
                                 "text": "Això ja casi està",
                             },
-                            "actionHook": "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
+                            "actionHook": actionHook
                         }
                     ]
                 }
@@ -67,6 +71,7 @@ async def jambonz_websocket(websocket: WebSocket):
                 print(data.get("data"))
                 if reason == "speechDetected":
                     speech = data.get("data").get("speech").get("alternatives")[0].get("transcript")
+                    memory.append(speech)
 
                     response = {
                     "type": "ack",
@@ -76,9 +81,9 @@ async def jambonz_websocket(websocket: WebSocket):
                             "verb": "gather",
                             "input": ["speech"],
                             "say": {
-                                "text": speech,
+                                "text": "Fins ara m'has dit: " + " i ".join(memory),
                             },
-                            "actionHook": "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
+                            "actionHook": actionHook
                         }
                     ]
                 }
