@@ -2,6 +2,11 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from typing import List, Dict, Any
 import asyncio
+import requests
+import os
+from transformers import AutoTokenizer
+from sentence_transformers import SentenceTransformer
+import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 
 app = FastAPI()
@@ -13,6 +18,72 @@ other_ws_queue = asyncio.Queue()
 memory = []
 
 actionHook = "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
+
+
+def interact_salamandra():
+    HF_TOKEN = os.getenv("HF_TOKEN", "")
+    # Your existing imports and variables
+    BASE_URL = "https://j292uzvvh7z6h2r4.us-east-1.aws.endpoints.huggingface.cloud"
+    model_name = "BSC-LT/salamandra-7b-instruct-aina-hack"
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+
+    headers = {
+        "Accept": "application/json",
+        "Authorization": f"Bearer {HF_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    text = "Com nivello la porta de l'armari de la cuina?"
+
+    # 1. Knowledge Base
+    documents = [
+        "Per nivellar la porta d'un armari de la cuina, ajusta les frontisses amb un tornavís.",
+        "Assegura't que les frontisses estiguin ben fixades i prova de tancar la porta per comprovar si està alineada.",
+        # Add more documents as needed
+    ]
+
+    # 2. Initialize the Embedding Model
+    embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')  # Multilingual model suitable for Catalan
+
+    # 3. Compute Embeddings
+    document_embeddings = embedder.encode(documents, convert_to_tensor=False)
+    query_embedding = embedder.encode(text, convert_to_tensor=False)
+
+    # 4. Compute Similarities
+    cosine_scores = np.dot(document_embeddings, query_embedding)
+
+    # 5. Retrieve Top-K Relevant Documents
+    top_k = 1
+    top_k_indices = np.argsort(cosine_scores)[::-1][:top_k]
+    retrieved_docs = [documents[i] for i in top_k_indices]
+
+    # 6. Integrate Retrieved Information
+    retrieved_text = "\n".join(retrieved_docs)
+    user_message_with_context = f"{text}\n\nInformació rellevant:\n{retrieved_text}"
+
+    # 7. Prepare the Messages
+    system_prompt = (
+        "Ajudes a gent gran a fer tasques de la llar. "
+        "Ho has d'explicar tot amb molt detall, molt a poc a poc i de forma molt amable."
+    )
+    message = [{"role": "system", "content": system_prompt}]
+    message += [{"role": "user", "content": user_message_with_context}]
+
+    # 8. Generate the Prompt
+    prompt = tokenizer.apply_chat_template(
+        message,
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+
+    # 9. Make the API Call
+    payload = {
+        "inputs": prompt,
+        "parameters": {}
+    }
+    api_url = BASE_URL + "/generate"
+    response = requests.post(api_url, headers=headers, json=payload)
+    print(response.json())
 
 @app.websocket("/dani_test")
 async def dani_websocket(websocket: WebSocket):
@@ -73,22 +144,28 @@ async def jambonz_websocket(websocket: WebSocket):
                     speech = data.get("data").get("speech").get("alternatives")[0].get("transcript")
                     memory.append(speech)
 
-                    response = {
-                    "type": "ack",
-                    "msgid": data.get("msgid"),
-                    "data": [
-                        {
-                            "verb": "gather",
-                            "input": ["speech"],
-                            "say": {
-                                "text": "Fins ara m'has dit: " + " i ".join(memory),
-                            },
-                            "actionHook": actionHook
-                        }
-                    ]
-                }
+                    await websocket.send_json({
+                        "type": "ack",
+                        "msgid": data.get("msgid")
+                    })
 
-                    await websocket.send_json(response)
+                    await websocket.send_json({
+                        "type": "command",
+                        "command": "redirect",
+                        "queueCommand": True,
+                        "data": [
+                            {
+                                "verb": "gather",
+                                "input": ["speech"],
+                                "say": {
+                                    "text": "Fins ara m'has dit: " + " i ".join(memory),
+                                },
+                                "actionHook": actionHook
+                            }
+                        ]
+                    })
+
+                    
 
     except WebSocketDisconnect:
         print("WebSocket disconnected")
