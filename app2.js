@@ -23,7 +23,7 @@ const makeService = createEndpoint({
 });
 
 const logger = require('pino')({level: process.env.LOGLEVEL || 'info'});
-const port = process.env.WS_PORT || 3000;
+const port = process.env.WS_PORT || 80;
 
 server.listen(port, () => {
   logger.info(`jambonz websocket server listening at http://localhost:${port}`);
