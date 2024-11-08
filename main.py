@@ -51,7 +51,7 @@ async def jambonz_websocket(websocket: WebSocket):
                             "say": {
                                 "text": "Això ja casi està",
                             },
-                            "actionHook": "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
+                            # "actionHook": "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
                         }
                     ]
                 }
