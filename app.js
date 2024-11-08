@@ -7,10 +7,6 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ noServer: true });
 
-// Queues for future use (simulating asyncio.Queue)
-const jambonzQueue = [];
-const otherWsQueue = [];
-
 // Middleware for parsing JSON
 app.use(bodyParser.json());
 
