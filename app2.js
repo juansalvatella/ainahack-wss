@@ -25,6 +25,8 @@ const makeService = createEndpoint({
 const logger = require('pino')({level: process.env.LOGLEVEL || 'info'});
 const port = process.env.WS_PORT || 80;
 
+require('./lib/routes')({logger, makeService});
+
 server.listen(port, () => {
   logger.info(`jambonz websocket server listening at http://localhost:${port}`);
 });
@@ -43,6 +45,6 @@ wssExtension.on('connection', (ws) => {
   logger.info('connection to /extension');
   ws.on('message', (message) => {
     logger.info(`received message on /extension: ${message}`);
-    ws.send(message); // Reply with 'bar' text frame
+    ws.send(message);
   });
 });
