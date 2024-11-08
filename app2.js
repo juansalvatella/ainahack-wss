@@ -1,40 +1,50 @@
-/* create an http/s server in your application however you like */
 const {createServer} = require('http');
-const server = createServer();
-server.listen(443);
-
-/* require the library and call the returned function with your server */
 const {createEndpoint} = require('@jambonz/node-client-ws');
-const makeService = createEndpoint({server});
+const server = createServer();
+const { WebSocketServer } = require('ws');
 
-/* create a jambonz application listeng for requests with URL path '/hello-world' */
-const svc = makeService({path: '/salamandra'});
+// create two external websocket servers on this http server
+const wssSalamandra = new WebSocketServer({ noServer: true });
+const wssExtension = new WebSocketServer({ noServer: true });
 
-/* listen for new calls to that service */
-svc.on('session:new', (session) => {
-  /* the 'session' object has all of the properties of the incoming call */
-  console.log({session}, `new incoming call: ${session.call_sid}`);
-
-  /* set up some event handlers for this session */
-  session
-    .on('close', onClose.bind(null, session))
-    .on('error', onError.bind(null, session));
-
-  /* all of the jambonz verbs are available as methods on the session object 
-     https://www.jambonz.org/docs/webhooks/overview/
-  */
-  session
-    .pause({length: 1.5})
-    .say({text})
-    .pause({length: 0.5})
-    .hangup()
-    .send(); // sends the queued verbs to jambonz
+// paths /foo and /bar should come to us, node-client-ws will handle the rest
+const makeService = createEndpoint({
+  server,
+  externalWss: [
+    {
+      path: '/salamandra',
+      wss: wssSalamandra
+    },
+    {
+      path: '/extension',
+      wss: wssExtension
+    }
+  ]
 });
 
-const onClose = (session, code, reason) => {
-  console.log({session, code, reason}, `session ${session.call_sid} closed`);
-};
+const logger = require('pino')({level: process.env.LOGLEVEL || 'info'});
+const port = process.env.WS_PORT || 3000;
 
-const onError = (session, err) => {
-  console.log({err}, `session ${session.call_sid} received error`);
-};
+require('./lib/routes')({logger, makeService});
+
+server.listen(port, () => {
+  logger.info(`jambonz websocket server listening at http://localhost:${port}`);
+});
+
+// Handle connections and messages for /foo WebSocket server
+wssSalamandra.on('connection', (ws) => {
+  logger.info('connection to /salamandra');
+  ws.on('message', (message) => {
+    logger.info(`received message on /salamandra: ${message}`);
+    ws.send('foo'); // Reply with 'foo' text frame
+  });
+});
+
+// Handle connections and messages for /bar WebSocket server
+wssExtension.on('connection', (ws) => {
+  logger.info('connection to /extension');
+  ws.on('message', (message) => {
+    logger.info(`received message on /extension: ${message}`);
+    ws.send(message); // Reply with 'bar' text frame
+  });
+});
