@@ -64,8 +64,9 @@ async def jambonz_websocket(websocket: WebSocket):
 
             elif data.get("type") == "verb:hook":
                 reason = data.get("data",{}).get("reason")
+                print(data.get("data"))
                 if reason == "speechDetected":
-                    speech = data.get("data").get("speech").get("transcripts")[0].get("alternatives")[0].get("transcript")
+                    speech = data.get("data").get("speech").get("alternatives")[0].get("transcript")
 
                     response = {
                     "type": "ack",
