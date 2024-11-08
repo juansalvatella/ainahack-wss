@@ -49,8 +49,9 @@ async def jambonz_websocket(websocket: WebSocket):
                             "input": ["speech"],
                             "verb": "gather",
                             "say": {
-                                "text": "Ja qüasi hi som!",
-                            }
+                                "text": "Això ja casi està",
+                            },
+                            "actionHook": "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
                         }
                     ]
                 }
@@ -71,8 +72,8 @@ async def jambonz_websocket(websocket: WebSocket):
                     "msgid": data.get("msgid"),
                     "data": [
                         {
-                            "input": ["speech"],
                             "verb": "gather",
+                            "input": ["speech"],
                             "say": {
                                 "text": speech,
                             }
@@ -81,19 +82,29 @@ async def jambonz_websocket(websocket: WebSocket):
                 }
 
                     await websocket.send_json(response)
-            # For other events, you can handle as needed
-            # Run a synchronous task in another thread if needed
-            result = await asyncio.get_event_loop().run_in_executor(
-                executor, sync_task_example, data
-            )
-            print("Sync task result:", result)
 
     except WebSocketDisconnect:
         print("WebSocket disconnected")
     except Exception as e:
         print("Error:", e)
 
-def sync_task_example(data):
-    # Example synchronous code to process the data
-    # Replace this with the actual sync task you need
-    return f"Processed data: {data}"
+@app.websocket("/jambonz-status")
+async def jambonz_status(websocket: WebSocket):
+    await websocket.accept(subprotocol="ws.jambonz.org")
+
+    try:
+        while True:
+            # Receive JSON data from Jambonz over WebSocket
+            data = await websocket.receive_json()
+            print("Received status:", data)
+            await websocket.send_json({
+                {
+                    "type": "ack",
+                    "msgid": data.get("msgid")
+                }
+            })
+
+    except WebSocketDisconnect:
+        print("WebSocket disconnected")
+    except Exception as e:
+        print("Error:", e)
