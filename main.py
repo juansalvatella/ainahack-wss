@@ -20,7 +20,7 @@ memory = []
 actionHook = "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
 
 
-def interact_salamandra():
+def interact_salamandra(text):
     HF_TOKEN = os.getenv("HF_TOKEN", "")
     # Your existing imports and variables
     BASE_URL = "https://j292uzvvh7z6h2r4.us-east-1.aws.endpoints.huggingface.cloud"
@@ -33,13 +33,11 @@ def interact_salamandra():
         "Content-Type": "application/json"
     }
 
-    text = "Com nivello la porta de l'armari de la cuina?"
-
     # 1. Knowledge Base
     documents = [
-        "Per nivellar la porta d'un armari de la cuina, ajusta les frontisses amb un tornavís.",
-        "Assegura't que les frontisses estiguin ben fixades i prova de tancar la porta per comprovar si està alineada.",
-        # Add more documents as needed
+        "A la web de la generalitat pots pagar les multes de tràsit",
+        "Per pagar una multa necessites el codi que apareix al paper que et deixen a la finestra del cotxe",
+        "Es pot pagar amb tarjeta de crèdit o domiciliació bancaria",
     ]
 
     # 2. Initialize the Embedding Model
@@ -63,7 +61,7 @@ def interact_salamandra():
 
     # 7. Prepare the Messages
     system_prompt = (
-        "Ajudes a gent gran a fer tasques de la llar. "
+        "Ajudes a gent gran a resoldre dubtes de la pàgina web de la generalitat"
         "Ho has d'explicar tot amb molt detall, molt a poc a poc i de forma molt amable."
     )
     message = [{"role": "system", "content": system_prompt}]
@@ -146,7 +144,13 @@ async def jambonz_websocket(websocket: WebSocket):
 
                     await websocket.send_json({
                         "type": "ack",
-                        "msgid": data.get("msgid")
+                        "msgid": data.get("msgid"),
+                        "data": [
+                            {
+                                "verb": "say",
+                                "text": "Dona'm un segon que reviso la documentació",
+                            }
+                        ]
                     })
 
                     await websocket.send_json({
@@ -158,7 +162,7 @@ async def jambonz_websocket(websocket: WebSocket):
                                 "verb": "gather",
                                 "input": ["speech"],
                                 "say": {
-                                    "text": "Fins ara m'has dit: " + " i ".join(memory),
+                                    "text": interact_salamandra(speech),
                                 },
                                 "actionHook": actionHook
                             }
