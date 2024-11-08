@@ -1,14 +1,14 @@
 /* create an http/s server in your application however you like */
 const {createServer} = require('http');
 const server = createServer();
-server.listen(3000);
+server.listen(443);
 
 /* require the library and call the returned function with your server */
 const {createEndpoint} = require('@jambonz/node-client-ws');
 const makeService = createEndpoint({server});
 
 /* create a jambonz application listeng for requests with URL path '/hello-world' */
-const svc = makeService({path: '/hello-world'});
+const svc = makeService({path: '/salamandra'});
 
 /* listen for new calls to that service */
 svc.on('session:new', (session) => {
