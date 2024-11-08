@@ -75,11 +75,11 @@ const handlSalamandra = (ws) => {
                     msgid: data.msgid,
                     data: [
                         {
-                            input: ['speech'],
                             verb: 'gather',
                             say: {
-                                text: 'Ja q asi hi som!',
+                                text: 'Anem a començar!',
                             },
+                            input: ['speech'],
                         },
                     ],
                 };
@@ -89,18 +89,17 @@ const handlSalamandra = (ws) => {
             } else if (data.type === 'verb:hook') {
                 const reason = data.data?.reason;
                 if (reason === 'speechDetected') {
-                    const speech =
-                        data.data?.speech?.transcripts[0]?.alternatives[0]?.transcript || '';
+                    const speech = data.data?.speech?.transcripts[0]?.alternatives[0]?.transcript || 'Sense transcripció';
                     const response = {
-                        type: 'command',
-                        command: 'redirect',
+                        type: 'ack',
+                        msgid: data.msgid,
                         data: [
                             {
-                                input: ['speech'],
                                 verb: 'gather',
                                 say: {
-                                    text: speech,
+                                    text: 'Anem a començar!',
                                 },
+                                input: ['speech'],
                             },
                         ],
                     };
