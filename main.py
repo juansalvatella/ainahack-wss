@@ -60,25 +60,25 @@ async def jambonz_websocket(websocket: WebSocket):
             elif data.get("type") == "call:status":
                 # Process call status data as needed
                 print("Received call status:", data)
-                
+
             elif data.get("type") == "verb:hook":
                 reason = data.get("data",{}).get("reason")
                 if reason == "speechDetected":
                     speech = data.get("data").get("speech").get("transcripts")[0].get("alternatives")[0].get("transcript")
 
                     response = {
-                        "type": "command",
-                        "command": "redirect",
-                        "data": [
-                            {
-                                "input": ["speech"],
-                                "verb": "gather",
-                                "say": {
-                                    "text": speech,
-                                }
+                    "type": "ack",
+                    "msgid": data.get("msgid"),
+                    "data": [
+                        {
+                            "input": ["speech"],
+                            "verb": "gather",
+                            "say": {
+                                "text": speech,
                             }
-                        ]
-                    }
+                        }
+                    ]
+                }
 
                     await websocket.send_json(response)
             # For other events, you can handle as needed
