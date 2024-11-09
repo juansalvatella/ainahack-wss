@@ -73,6 +73,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
 
                 bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
 
+                print({"x_path": path_map[next_step].get("x_path")})
                 await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
 
                 await websocket.send_json({
@@ -101,7 +102,7 @@ async def jambonz_websocket(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
-            print("Received data:", data)
+            # print("Received data:", data)
 
             if data.get("type") == "session:new":
                 response = {
@@ -112,6 +113,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     ]
                 }
 
+                print({"x_path": path_map[1].get("x_path")})
                 await jambonz_queue.put({"x_path": path_map[1].get("x_path")})
 
                 await websocket.send_json(response)
@@ -125,6 +127,7 @@ async def jambonz_websocket(websocket: WebSocket):
                 print(data.get("data"))
                 if reason == "speechDetected":
                     speech = data.get("data").get("speech").get("alternatives")[0].get("transcript")
+                    print(speech)
 
                     await websocket.send_json({
                         "type": "ack",
@@ -134,7 +137,7 @@ async def jambonz_websocket(websocket: WebSocket):
 
                     # Additional processing as needed
                     # response_salamandra = interact_salamandra(speech)
-                    # print("---------------")
+                    print("---------------")
                     # print(response_salamandra)
 
                     # await websocket.send_json({
