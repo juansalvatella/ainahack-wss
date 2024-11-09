@@ -150,25 +150,6 @@ async def jambonz_websocket(websocket: WebSocket):
                 }
                 await websocket.send_json(response)
 
-                # await websocket.send_json({
-                #     "type": "command",
-                #     "command": "redirect",
-                #     "queueCommand": True,
-                #     "data": [{
-                #         "verb": "dial",
-                #         "callerId": "012",
-                #         "actionHook": ACTION_HOOK,
-                #         "answerOnBridge": True,
-                #         "target": [
-                #             {
-                #             "type": "phone",
-                #             "number": "+34618835151",
-                #             "trunk": "Voxbone-j1kBDcms3ravVPBe5PjAwQ"
-                #             },
-                #         ]
-                #     }]
-                # })
-
             elif data.get("type") == "call:status":
                 # Process call status data as needed
                 print("Received call status:", data)
@@ -243,9 +224,19 @@ async def jambonz_websocket(websocket: WebSocket):
                             "type": "command",
                             "command": "redirect",
                             "queueCommand": True,
-                            "data": [
-                                hangup()
-                            ]
+                            "data": [{
+                                "verb": "dial",
+                                "callerId": "012",
+                                "actionHook": ACTION_HOOK,
+                                "answerOnBridge": True,
+                                "target": [
+                                    {
+                                    "type": "phone",
+                                    "number": "+34618835151",
+                                    "trunk": "Voxbone-j1kBDcms3ravVPBe5PjAwQ"
+                                    },
+                                ]
+                            }]
                         })
                     else:
                         await websocket.send_json({
@@ -363,3 +354,4 @@ def send_whats_template(number: str, intent: str):
     }
     # 2 - Request and response
     response = requests.post(url, headers=headers, json=payload)
+    print(response)
