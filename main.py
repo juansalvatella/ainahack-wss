@@ -20,21 +20,18 @@ memory = []
 
 actionHook = "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
 
-# HF_TOKEN = os.getenv("HF_TOKEN", "")
-# BASE_URL = "https://j292uzvvh7z6h2r4.us-east-1.aws.endpoints.huggingface.cloud"
-# model_name = "BSC-LT/salamandra-7b-instruct-aina-hack"
-# tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-# print("tokenizer")
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+BASE_URL = "https://j292uzvvh7z6h2r4.us-east-1.aws.endpoints.huggingface.cloud"
+model_name = "BSC-LT/salamandra-7b-instruct-aina-hack"
+tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
-# # 1. Knowledge Base
-# documents = [
-#     "A la web de la generalitat pots pagar les multes de tràsit",
-#     "Es pot pagar amb tarjeta de crèdit o domiciliació bancaria",
-# ]
-# embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')  # Multilingual model suitable for Catalan
-# print("embedder")
-# document_embeddings = embedder.encode(documents, convert_to_tensor=False)
-# print("document_embeddings")
+# 1. Knowledge Base
+documents = [
+    "A la web de la generalitat pots pagar les multes de tràsit",
+    "Es pot pagar amb tarjeta de crèdit o domiciliació bancaria",
+]
+embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')  # Multilingual model suitable for Catalan
+document_embeddings = embedder.encode(documents, convert_to_tensor=False)
 
 def interact_salamandra(text):
     # Your existing imports and variables
