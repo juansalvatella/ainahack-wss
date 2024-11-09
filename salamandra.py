@@ -51,8 +51,7 @@ def interact_salamandra(text):
 
     # 7. Prepare the Messages
     system_prompt = (
-        "Ajudes a gent gran a resoldre dubtes de la pàgina web de la generalitat"
-        "Ho has d'explicar tot amb molt detall, molt a poc a poc i de forma molt amable."
+        "Et dius Olga, respons al telèfon del 012 fora d'horari i ajudes a resoldre dubtes de la web de la generalitat"
     )
     message = [{"role": "system", "content": system_prompt}]
     message += [{"role": "user", "content": user_message_with_context}]
