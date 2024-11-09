@@ -132,10 +132,6 @@ async def jambonz_websocket(websocket: WebSocket):
                         gather_data(phrases.INTRO),
                     ]
                 }
-
-                print({"x_path": path_map[intent][1].get("x_path")})
-                await jambonz_queue.put({"x_path": path_map[intent][1].get("x_path")})
-
                 await websocket.send_json(response)
 
             elif data.get("type") == "call:status":
@@ -185,8 +181,8 @@ async def jambonz_websocket(websocket: WebSocket):
                         else:
                             ANSWER = phrases.CHROME_INSTALLED
                     elif CONVERSATION_STATUS == "START_FLOW":
-                        # TODO: Just wait until events arrive
-                        pass
+                        print({"x_path": path_map[intent][1].get("x_path")})
+                        await jambonz_queue.put({"x_path": path_map[intent][1].get("x_path")})
 
                     print("---------------")
                     print("CONVERSATION_STATUS",CONVERSATION_STATUS)
