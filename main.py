@@ -155,10 +155,10 @@ async def jambonz_websocket(websocket: WebSocket):
                     print(speech)
 
                     if CONVERSATION_STATUS == "START":
-                        intent = salamandra.classify_intent(speech, path_map.keys())
-                        SELECTED_INTENT = intent
+                        detected_intent = salamandra.classify_intent(speech, path_map.keys())
                         print("intent", intent)
-                        if intent != "NONE":
+                        if detected_intent != "NONE":
+                            intent = detected_intent
                             CONVERSATION_STATUS = "USE_GOOGLE_CHROME"
                             ANSWER = phrases.USE_GOOGLE_CHROME
                         else:
@@ -188,8 +188,8 @@ async def jambonz_websocket(websocket: WebSocket):
                         pass
 
                     print("---------------")
-                    print(CONVERSATION_STATUS)
-                    print(ANSWER)
+                    print("CONVERSATION_STATUS",CONVERSATION_STATUS)
+                    print("ANSWER",ANSWER)
 
                     # Additional processing as needed
                     # system_prompt = (
