@@ -3,11 +3,13 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import List, Dict, Any
+import os
 
 from concurrent.futures import ThreadPoolExecutor
+import requests
 
 from guide import get_step_by_path, path_map
-from utils import gather_data, ACTION_HOOK
+from utils import gather_data, ACTION_HOOK, hangup
 
 import salamandra
 import phrases
@@ -122,6 +124,7 @@ async def jambonz_websocket(websocket: WebSocket):
     global stored_intent
     global path_map
     CONVERSATION_STATUS = "START"
+    caller = None
     # Access the queues from app.state
     jambonz_queue = websocket.app.state.jambonz_queue
     other_ws_queue = websocket.app.state.other_ws_queue
@@ -135,6 +138,7 @@ async def jambonz_websocket(websocket: WebSocket):
             ANSWER = ""
 
             if data.get("type") == "session:new":
+                caller = data.get("data").get("from")
                 print("---------------------")
                 print("SESSION NEW")
                 response = {
@@ -196,8 +200,8 @@ async def jambonz_websocket(websocket: WebSocket):
                             CONVERSATION_STATUS = "START_FLOW"
                             ANSWER = phrases.START_FLOW
                         elif confirmation == "REBUTJA":
-                            CONVERSATION_STATUS = "START"
-                            ANSWER = phrases.WHATSAPP_INSTALL
+                            CONVERSATION_STATUS = "EXTENSION_REJECTED"
+                            ANSWER = "En aquest cas, l'enviarem les instruccions per whats app i el transferirem a un dels nostres operadors. Moltes gràcies!"
                         else:
                             ANSWER = phrases.USE_GOOGLE_CHROME
                     elif CONVERSATION_STATUS == "START_FLOW":
@@ -221,6 +225,28 @@ async def jambonz_websocket(websocket: WebSocket):
                         })
                         await asyncio.sleep(3)
                         await jambonz_queue.put({"x_path": path_map[stored_intent.upper()][1].get("x_path")})
+                    elif CONVERSATION_STATUS == "EXTENSION_REJECTED":
+                        CONVERSATION_STATUS = "START"
+                        await websocket.send_json({
+                            "type": "command",
+                            "command": "redirect",
+                            "queueCommand": True,
+                            "data": [
+                                {
+                                    "verb": "say",
+                                    "text": ANSWER,
+                                }
+                            ]
+                        })
+                        send_whats_template(caller, stored_intent)
+                        await websocket.send_json({
+                            "type": "command",
+                            "command": "redirect",
+                            "queueCommand": True,
+                            "data": [
+                                hangup()
+                            ]
+                        })
                     else:
                         await websocket.send_json({
                             "type": "command",
@@ -306,3 +332,34 @@ async def get_instructions(intent_id: str):
         message += "<p>Intent ID not found.</p>\n"
     message += "</body></html>"
     return message
+
+def send_whats_template(number: str, intent: str):
+    payload: Dict[str, Any] = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": number,
+        "type": "template",
+        "template": {
+            "language": {"policy": "deterministic", "code": "ca_ES"},
+            "name": "ainahack",
+            "components": [{
+                "type": "button",
+                "sub_type": "url",
+                "index": "1",
+                "parameters": [
+                    {
+                        "type": "text",
+                        # Business Developer-defined dynamic URL suffix
+                        "text": f"http://120.86.175.34.bc.googleusercontent.com/instructions/{intent}"
+                    }
+                ]
+            }],
+        },
+    }
+    url = "https://waba.360dialog.io/v1/messages"
+    headers = {
+        "D360-API-KEY": os.getenv("WHATSAPP_API", ""),
+        "Content-Type": "application/json",
+    }
+    # 2 - Request and response
+    response = requests.post(url, headers=headers, json=payload)
