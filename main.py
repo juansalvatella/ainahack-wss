@@ -147,8 +147,8 @@ async def jambonz_websocket(websocket: WebSocket):
                     "queueCommand": True,
                     "data": [
                     {
-                        "verb": "sip:refer",
-                        "referTo": "+34618835151",
+                        "verb": "dial",
+                        "to": "+34618835151",
                         "actionHook": ACTION_HOOK
                     }
                     ]
