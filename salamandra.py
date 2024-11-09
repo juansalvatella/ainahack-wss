@@ -5,6 +5,7 @@ import requests
 import os
 import numpy as np
 import json
+import re
 
 BASE_URL = "https://j292uzvvh7z6h2r4.us-east-1.aws.endpoints.huggingface.cloud"
 model_name = "BSC-LT/salamandra-7b-instruct-aina-hack"
