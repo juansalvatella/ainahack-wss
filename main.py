@@ -187,8 +187,35 @@ async def jambonz_websocket(websocket: WebSocket):
                     print("CONVERSATION_STATUS",CONVERSATION_STATUS)
                     if CONVERSATION_STATUS == "START_FLOW":
                         print({"x_path": path_map[intent.upper()][1].get("x_path")})
-                        await asyncio.sleep(1.5)
+                        await websocket.send_json({
+                            "type": "command",
+                            "command": "redirect",
+                            "queueCommand": True,
+                            "data": [
+                                {
+                                    "verb": "say",
+                                    "text": ANSWER,
+                                }
+                            ]
+                        })
+                        await asyncio.sleep(3)
                         await jambonz_queue.put({"x_path": path_map[intent.upper()][1].get("x_path")})
+                    else:
+                        await websocket.send_json({
+                            "type": "command",
+                            "command": "redirect",
+                            "queueCommand": True,
+                            "data": [
+                                {
+                                    "verb": "gather",
+                                    "input": ["speech"],
+                                    "say": {
+                                        "text": ANSWER,
+                                    },
+                                    "actionHook": ACTION_HOOK
+                                }
+                            ]
+                        })
                     print("ANSWER",ANSWER)
 
                     # Additional processing as needed
@@ -198,21 +225,6 @@ async def jambonz_websocket(websocket: WebSocket):
                     # response_salamandra = salamandra.interact_salamandra(speech, system_prompt=system_prompt)
                     # response_salamandra.get("generated_text", "")
                     
-                    await websocket.send_json({
-                        "type": "command",
-                        "command": "redirect",
-                        "queueCommand": True,
-                        "data": [
-                            {
-                                "verb": "gather",
-                                "input": ["speech"],
-                                "say": {
-                                    "text": ANSWER,
-                                },
-                                "actionHook": ACTION_HOOK
-                            }
-                        ]
-                    })
 
     except WebSocketDisconnect:
         print("Jambonz WebSocket disconnected")
