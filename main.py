@@ -80,6 +80,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
 
                 print({"x_path": path_map[next_step].get("x_path")})
                 pause = path_map[next_step].get("pause", None)
+                print("pause",pause)
                 if pause:
                     print("waiting 2s")
                     await asyncio.sleep(2)
