@@ -150,11 +150,12 @@ async def jambonz_websocket(websocket: WebSocket):
                 #         "verb": "dial",
                 #         "callerId": "012",
                 #         "actionHook": ACTION_HOOK,
+                #         "answerOnBridge": True,
                 #         "target": [
                 #             {
-                #                 "type": "phone",
-                #                 "number": "+34618835151",
-                #                 "trunk": "Voxbone-j1kBDcms3ravVPBe5PjAwQ"
+                #             "type": "phone",
+                #             "number": "+34618835151",
+                #             "trunk": "Voxbone-j1kBDcms3ravVPBe5PjAwQ"
                 #             },
                 #         ]
                 #     }]
