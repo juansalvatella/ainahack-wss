@@ -50,26 +50,28 @@ async def act_on_front_command(websocket: WebSocket):
     while True:
         try:
             message = await other_ws_queue.get()
+            print("message", message)
             xpath = message.get("x_path", "")
             print("XPath:", xpath)
             current_step = get_step_by_path(xpath)
-            next_step = (current_step + 1) % 7  # Fixed operator precedence
-            print("Current step:", current_step)
-            print("Next step:", next_step)
-            print("Path map:", path_map[next_step])
+            if current_step:
+                next_step = (current_step + 1) % 7  # Fixed operator precedence
+                print("Current step:", current_step)
+                print("Next step:", next_step)
+                print("Path map:", path_map[next_step])
 
-            bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
+                bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
 
-            await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
+                await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
 
-            await websocket.send_json({
-                "type": "command",
-                "command": "redirect",
-                "queueCommand": False,
-                "data": [
-                    gather_data(bot_message)
-                ]
-            })
+                await websocket.send_json({
+                    "type": "command",
+                    "command": "redirect",
+                    "queueCommand": False,
+                    "data": [
+                        gather_data(bot_message)
+                    ]
+                })
         except asyncio.CancelledError:
             print("act_on_front_command task cancelled")
         except Exception as e:
