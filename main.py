@@ -34,7 +34,6 @@ document_embeddings = embedder.encode(documents, convert_to_tensor=False)
 
 def interact_salamandra(text):
     # Your existing imports and variables
-    print(os.getenv("HF_TOKEN", ""))
     headers = {
         "Accept": "application/json",
         "Authorization": f'Bearer {os.getenv("HF_TOKEN", "")}',
@@ -77,7 +76,7 @@ def interact_salamandra(text):
     }
     api_url = BASE_URL + "/generate"
     response = requests.post(api_url, headers=headers, json=payload)
-    print(response.json().get("generated_text", ""))
+    return response.json().get("generated_text", "")
 
 @app.websocket("/dani_test")
 async def dani_websocket(websocket: WebSocket):
@@ -164,8 +163,6 @@ async def jambonz_websocket(websocket: WebSocket):
                             }
                         ]
                     })
-
-                    
 
     except WebSocketDisconnect:
         print("WebSocket disconnected")
