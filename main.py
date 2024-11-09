@@ -95,11 +95,6 @@ async def extension_websocket(websocket: WebSocket):
     except Exception as e:
         print("Error:", e)
 
-class Verb(BaseModel):
-    verb: str
-    text: str = None
-    # Add other fields as needed based on Jambonz verb specifications
-
 async def act_on_jambonz_command(websocket: WebSocket):
     while True:
         jambonz_says: str = await jambonz_queue.get()
@@ -177,7 +172,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     ]
                 }
 
-                await jambonz_queue.put({"x_path": 1})
+                await jambonz_queue.put({"x_path": path_map[1].get("x_path")})
 
                 await websocket.send_json(response)
 
