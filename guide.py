@@ -14,7 +14,8 @@ path_map = {
     4: {
         "x_path": [
             '/html/body/div/header/div/div/div/div[2]/nav/div/div/ul/li[5]/div/div[2]/div/div/div/div[2]/div/div/div/ul/li[6]/div/div/div[2]/div/div/div/ul/li/div/div/div[2]/div/div/div/ul/li[2]/p/a',
-            '/html/body/div/header/div/div/div/div[2]/nav/div/div/ul/li[5]/div/div[2]/div/div/div/div[2]/div/div/div/ul/li[6]/div/div/div[2]/div/div/div/ul/li/div/div/div[2]/div/div/div/ul/li[2]/p/a/img'
+            '/html/body/div/header/div/div/div/div[2]/nav/div/div/ul/li[5]/div/div[2]/div/div/div/div[2]/div/div/div/ul/li[6]/div/div/div[2]/div/div/div/ul/li/div/div/div[2]/div/div/div/ul/li[2]/p/a/img',
+            '/html/body/div/header/div/div/div/div[2]/nav/div/div/ul/li[5]/div/div[2]/div/div/div/div[2]/div/div/div/ul/li[6]/div/div/div[2]/div/div/div/ul/li/div/div/div[2]/div/div/div/ul/li[2]/p/a/span'
         ],
         "text": 'Accedeix a "Em posen una multa de trànsit"',
     },
