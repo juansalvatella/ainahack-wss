@@ -152,7 +152,7 @@ async def jambonz_websocket(websocket: WebSocket):
                                 "verb": "gather",
                                 "input": ["speech"],
                                 "say": {
-                                    "text": response_salamandra,
+                                    "text": response_salamandra.get("generated_text", ""),
                                 },
                                 "actionHook": ACTION_HOOK
                             }
