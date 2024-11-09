@@ -263,4 +263,4 @@ async def store_path_map(request: Request):
     global path_map
     # Read the JSON data from the request
     path_map = await request.json()
-    return {"message": "Data stored successfully", "data_received": stored_data}
+    return {"message": "Data stored successfully", "data_received": path_map}
