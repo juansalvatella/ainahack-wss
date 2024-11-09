@@ -118,7 +118,7 @@ async def act_on_front_command(websocket: WebSocket):
 
         bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
 
-        await jambonz_queue.put({"x_path": next_step})
+        await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
 
         await websocket.send_json({
             "type": "command",
