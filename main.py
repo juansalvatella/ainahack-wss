@@ -87,8 +87,7 @@ async def extension_websocket(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
-            text = data.get("text", "")
-            await other_ws_queue.put(text)
+            await other_ws_queue.put(data)
             # await websocket.send_json(data)
     except WebSocketDisconnect:
         print("WebSocket disconnected")
