@@ -131,6 +131,8 @@ async def jambonz_websocket(websocket: WebSocket):
             ANSWER = ""
 
             if data.get("type") == "session:new":
+                print("---------------------")
+                print("SESSION NEW")
                 response = {
                     "type": "ack",
                     "msgid": data.get("msgid"),
