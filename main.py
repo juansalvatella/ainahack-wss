@@ -64,7 +64,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
         try:
             message = await other_ws_queue.get()
             print("message", message)
-            xpath = message.get("x_path", "")
+            xpath = message.get("x_path", [])
             print("XPath:", xpath)
             current_step = get_step_by_path(xpath)
             if not current_step:
@@ -79,14 +79,14 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
 
                 bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
 
-                print({"x_path": path_map[next_step].get("x_path")})
+                print({"x_path": path_map[next_step].get("x_path")[0]})
                 pause = path_map[next_step].get("pause", None)
                 print("pause", pause)
                 if pause:
                     print("waiting 2s")
                     await asyncio.sleep(2)
 
-                await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
+                await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")[0]})
 
                 await websocket.send_json({
                     "type": "command",
