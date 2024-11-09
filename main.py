@@ -1,19 +1,21 @@
 import asyncio
 import requests
 import os
+import numpy as np
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from transformers import AutoTokenizer
 from sentence_transformers import SentenceTransformer
-import numpy as np
 from concurrent.futures import ThreadPoolExecutor
+
+from guide import get_step_by_path, path_map
 
 app = FastAPI()
 executor = ThreadPoolExecutor()
 
-jambonz_queue = asyncio.Queue()
+jambonz_queue: asyncio.Queue[str] = asyncio.Queue()
 other_ws_queue: asyncio.Queue[str] = asyncio.Queue()
 
 memory = []
@@ -86,7 +88,7 @@ async def extension_websocket(websocket: WebSocket):
             data = await websocket.receive_json()
             text = data.get("text", "")
             await other_ws_queue.put(text)
-            await websocket.send_json(data)
+            # await websocket.send_json(data)
     except WebSocketDisconnect:
         print("WebSocket disconnected")
     except Exception as e:
@@ -97,9 +99,26 @@ class Verb(BaseModel):
     text: str = None
     # Add other fields as needed based on Jambonz verb specifications
 
+async def act_on_jambonz_command(websocket: WebSocket):
+    while True:
+        jambonz_says: str = await jambonz_queue.get()
+        await websocket.send_json(jambonz_says)
+
 async def act_on_front_command(websocket: WebSocket):
     while True:
-        front_says: str = await other_ws_queue.get()
+        message: str = await other_ws_queue.get()
+        xpath = message.get("x_path", "")
+        print(xpath)
+        current_step = get_step_by_path(xpath)
+        next_step = current_step + 1 % 7
+        print(step)
+        print(next_step)
+        print(path_map[next_step])
+
+        bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
+
+        await jambonz_queue.put({"x_path": next_step})
+
         await websocket.send_json({
             "type": "command",
             "command": "redirect",
@@ -109,12 +128,23 @@ async def act_on_front_command(websocket: WebSocket):
                     "verb": "gather",
                     "input": ["speech"],
                     "say": {
-                        "text": front_says,
+                        "text": bot_message,
                     },
                     "actionHook": actionHook
                 }
             ]
         })
+        # await websocket.send_json({
+        #     "type": "command",
+        #     "command": "redirect",
+        #     "queueCommand": False,
+        #     "data": [
+        #         {
+        #             "verb": "say",
+        #             "text": front_says,
+        #         }
+        #     ]
+        # })
 
 # WebSocket endpoint to handle data from Jambonz as if it were a webhook
 @app.websocket("/jambonz-websocket")
@@ -146,6 +176,8 @@ async def jambonz_websocket(websocket: WebSocket):
                     ]
                 }
 
+                await jambonz_queue.put({"x_path": 1})
+
                 await websocket.send_json(response)
 
             elif data.get("type") == "call:status":
@@ -157,7 +189,6 @@ async def jambonz_websocket(websocket: WebSocket):
                 print(data.get("data"))
                 if reason == "speechDetected":
                     speech = data.get("data").get("speech").get("alternatives")[0].get("transcript")
-                    memory.append(speech)
 
                     await websocket.send_json({
                         "type": "ack",
@@ -166,25 +197,41 @@ async def jambonz_websocket(websocket: WebSocket):
                         ]
                     })
 
-                    response_salamandra = interact_salamandra(speech)
-                    print("---------------")
-                    print(response_salamandra)
+                    # await websocket.send_json({
+                    #     "type": "command",
+                    #     "command": "redirect",
+                    #     "queueCommand": True,
+                    #     "data": [
+                    #         {
+                    #             "verb": "gather",
+                    #             "input": ["speech"],
+                    #             "say": {
+                    #                 "text": "",
+                    #             },
+                    #             "actionHook": actionHook
+                    #         }
+                    #     ]
+                    # })
 
-                    await websocket.send_json({
-                        "type": "command",
-                        "command": "redirect",
-                        "queueCommand": True,
-                        "data": [
-                            {
-                                "verb": "gather",
-                                "input": ["speech"],
-                                "say": {
-                                    "text": response_salamandra,
-                                },
-                                "actionHook": actionHook
-                            }
-                        ]
-                    })
+                    # response_salamandra = interact_salamandra(speech)
+                    # print("---------------")
+                    # print(response_salamandra)
+
+                    # await websocket.send_json({
+                    #     "type": "command",
+                    #     "command": "redirect",
+                    #     "queueCommand": True,
+                    #     "data": [
+                    #         {
+                    #             "verb": "gather",
+                    #             "input": ["speech"],
+                    #             "say": {
+                    #                 "text": response_salamandra,
+                    #             },
+                    #             "actionHook": actionHook
+                    #         }
+                    #     ]
+                    # })
 
     except WebSocketDisconnect:
         print("WebSocket disconnected")
