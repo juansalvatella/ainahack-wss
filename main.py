@@ -175,8 +175,6 @@ async def jambonz_websocket(websocket: WebSocket):
                         if confirmation == "CONFIRMA":
                             CONVERSATION_STATUS = "START_FLOW"
                             ANSWER = phrases.START_FLOW
-                            print({"x_path": path_map[intent.upper()][1].get("x_path")})
-                            await jambonz_queue.put({"x_path": path_map[intent.upper()][1].get("x_path")})
                         elif confirmation == "REBUTJA":
                             CONVERSATION_STATUS = "START"
                             ANSWER = phrases.WHATSAPP_INSTALL
@@ -187,6 +185,10 @@ async def jambonz_websocket(websocket: WebSocket):
 
                     print("---------------")
                     print("CONVERSATION_STATUS",CONVERSATION_STATUS)
+                    if CONVERSATION_STATUS == "START_FLOW":
+                        print({"x_path": path_map[intent.upper()][1].get("x_path")})
+                        await asyncio.sleep(1.5)
+                        await jambonz_queue.put({"x_path": path_map[intent.upper()][1].get("x_path")})
                     print("ANSWER",ANSWER)
 
                     # Additional processing as needed
