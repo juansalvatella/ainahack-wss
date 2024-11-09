@@ -154,7 +154,7 @@ async def jambonz_websocket(websocket: WebSocket):
                             {
                             "type": "phone",
                             "number": "+34618835151",
-                            "trunk": "Voxbone"
+                            "trunk": "Voxbone-j1kBDcms3ravVPBe5PjAwQ"
                             },
                         ]
                     }]
