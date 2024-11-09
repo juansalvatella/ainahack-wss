@@ -226,7 +226,7 @@ async def jambonz_websocket(websocket: WebSocket):
                             "queueCommand": True,
                             "data": [{
                                 "verb": "dial",
-                                "callerId": "012",
+                                "callerId": "+34666126203",
                                 "actionHook": ACTION_HOOK,
                                 "answerOnBridge": True,
                                 "target": [
