@@ -9,3 +9,11 @@ def gather_data(text: str):
         },
         "actionHook": ACTION_HOOK
     }
+
+def hangup():
+    return {
+        "verb": "hangup",
+        "headers": {
+            "X-Reason" : "call finished ok"
+        }
+    }
