@@ -36,7 +36,7 @@ def interact_salamandra(text):
     # Your existing imports and variables
     headers = {
         "Accept": "application/json",
-        "Authorization": f"Bearer {os.getenv("HF_TOKEN", "")}",
+        "Authorization": f'Bearer {os.getenv("HF_TOKEN", "")}',
         "Content-Type": "application/json"
     }
 
