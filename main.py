@@ -71,7 +71,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
                # If the xpath is not recognized, start again
                current_step = 0
                print("pasamos a current_step a 0")
-            if current_step:
+            if current_step or current_step == 0:
                 next_step = (current_step + 1) % 7  # Fixed operator precedence
                 print("Current step:", current_step)
                 print("Next step:", next_step)
