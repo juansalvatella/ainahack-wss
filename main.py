@@ -16,64 +16,77 @@ executor = ThreadPoolExecutor()
 jambonz_queue: asyncio.Queue[Any] = asyncio.Queue()
 other_ws_queue: asyncio.Queue[Any] = asyncio.Queue()
 
-
 @app.websocket("/extension")
 async def extension_websocket(websocket: WebSocket):
     await websocket.accept()
-    jambonz_task = asyncio.Task(act_on_jambonz_command(websocket))
+    # Start the task to send messages from jambonz_queue to this websocket
+    jambonz_task = asyncio.create_task(act_on_jambonz_command(websocket))
     try:
         while True:
             data = await websocket.receive_json()
             await other_ws_queue.put(data)
-            # await websocket.send_json(data)
     except WebSocketDisconnect:
-        print("WebSocket disconnected")
+        print("Extension WebSocket disconnected")
     except Exception as e:
-        print("Error:", e)
+        print("Error in extension_websocket:", e)
+    finally:
+        jambonz_task.cancel()
+        try:
+            await jambonz_task
+        except asyncio.CancelledError:
+            pass
 
 async def act_on_jambonz_command(websocket: WebSocket):
-    while True:
-        jambonz_says = await jambonz_queue.get()
-        await websocket.send_json(jambonz_says)
+    try:
+        while True:
+            jambonz_says = await jambonz_queue.get()
+            await websocket.send_json(jambonz_says)
+    except asyncio.CancelledError:
+        print("act_on_jambonz_command task cancelled")
+    except Exception as e:
+        print("Error in act_on_jambonz_command:", e)
 
 async def act_on_front_command(websocket: WebSocket):
-    while True:
-        message: str = await other_ws_queue.get()
-        xpath = message.get("x_path", "")
-        print(xpath)
-        current_step = get_step_by_path(xpath)
-        next_step = current_step + 1 % 7
-        print(step)
-        print(next_step)
-        print(path_map[next_step])
+    try:
+        while True:
+            message = await other_ws_queue.get()
+            xpath = message.get("x_path", "")
+            print("XPath:", xpath)
+            current_step = get_step_by_path(xpath)
+            next_step = (current_step + 1) % 7  # Fixed operator precedence
+            print("Current step:", current_step)
+            print("Next step:", next_step)
+            print("Path map:", path_map[next_step])
 
-        bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
+            bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
 
-        await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
+            await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
 
-        await websocket.send_json({
-            "type": "command",
-            "command": "redirect",
-            "queueCommand": False,
-            "data": [
-                gather_data(bot_message)
-            ]
-        })
+            await websocket.send_json({
+                "type": "command",
+                "command": "redirect",
+                "queueCommand": False,
+                "data": [
+                    gather_data(bot_message)
+                ]
+            })
+    except asyncio.CancelledError:
+        print("act_on_front_command task cancelled")
+    except Exception as e:
+        print("Error in act_on_front_command:", e)
 
 @app.websocket("/jambonz-websocket")
 async def jambonz_websocket(websocket: WebSocket):
     await websocket.accept(subprotocol="ws.jambonz.org")
     print("WebSocket connection established with Jambonz")
-    front_task = asyncio.Task(act_on_front_command(websocket))
+    # Start the task to process messages from other_ws_queue
+    front_task = asyncio.create_task(act_on_front_command(websocket))
     try:
         while True:
-            # Receive JSON data from Jambonz over WebSocket
             data = await websocket.receive_json()
             print("Received data:", data)
 
-            # Example of processing the received data
             if data.get("type") == "session:new":
-                # Example response for starting a call
                 response = {
                     "type": "ack",
                     "msgid": data.get("msgid"),
@@ -85,6 +98,7 @@ async def jambonz_websocket(websocket: WebSocket):
                 await jambonz_queue.put({"x_path": path_map[1].get("x_path")})
 
                 await websocket.send_json(response)
+
 
             elif data.get("type") == "call:status":
                 # Process call status data as needed
@@ -140,9 +154,15 @@ async def jambonz_websocket(websocket: WebSocket):
                     # })
 
     except WebSocketDisconnect:
-        print("WebSocket disconnected")
+        print("Jambonz WebSocket disconnected")
     except Exception as e:
-        print("Error:", e)
+        print("Error in jambonz_websocket:", e)
+    finally:
+        front_task.cancel()
+        try:
+            await front_task
+        except asyncio.CancelledError:
+            pass
 
 
 @app.websocket("/jambonz-status")
