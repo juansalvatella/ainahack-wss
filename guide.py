@@ -1,3 +1,4 @@
+global path_map
 path_map = {
     "MULTA": {
         1: {
