@@ -129,7 +129,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     "type": "ack",
                     "msgid": data.get("msgid"),
                     "data": [
-                        gather_data("Hola! Em dic Olga i sóc l'assistent virtual del 012 quan ningú el pot atendre. En què el puc ajudar?"),
+                        gather_data(phrases.INTRO),
                     ]
                 }
 
@@ -155,7 +155,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     print(speech)
 
                     if CONVERSATION_STATUS == "START":
-                        intent = classify_intent(speech, path_map.keys())
+                        intent = salamandra.classify_intent(speech, path_map.keys())
                         SELECTED_INTENT = intent
                         print("intent", intent)
                         if intent != "NONE":

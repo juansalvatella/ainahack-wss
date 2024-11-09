@@ -1,4 +1,5 @@
 INTRO = "Benvinguts al servei d'atenció ciutadana. Us informem que aquesta trucada pot ser gravada. Per emergències, truqui al 112. Si és per una altra cosa, digui'm, en què el puc ajudar?"
+# "Hola! Em dic Olga i sóc l'assistent virtual del 012 quan ningú el pot atendre. En què el puc ajudar?"
 NO_MATCH = "Encara no el puc ajudar a fer això. Pregunti'm per una altra cosa"
 USE_GOOGLE_CHROME = "Fa anar Google Chrome?"
 CHROME_INSTALLED = "Te instal·lada la extensió de Chrome de l'assistent virtual Avia?"
