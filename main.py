@@ -172,7 +172,7 @@ async def jambonz_websocket(websocket: WebSocket):
                             CONVERSATION_STATUS = "START"
                             ANSWER = phrases.WHATSAPP_INSTALL
                         else:
-                            ANSWER = phrases.CHROME_INSTALLED
+                            ANSWER = phrases.USE_GOOGLE_CHROME
                     elif CONVERSATION_STATUS == "START_FLOW":
                         pass
 
