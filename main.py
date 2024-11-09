@@ -122,6 +122,7 @@ async def jambonz_websocket(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             # print("Received data:", data)
+            ANSWER = ""
 
             if data.get("type") == "session:new":
                 response = {
@@ -132,8 +133,8 @@ async def jambonz_websocket(websocket: WebSocket):
                     ]
                 }
 
-                print({"x_path": path_map[SELECTED_INTENT][1].get("x_path")})
-                await jambonz_queue.put({"x_path": path_map[SELECTED_INTENT][1].get("x_path")})
+                print({"x_path": path_map[intent][1].get("x_path")})
+                await jambonz_queue.put({"x_path": path_map[intent][1].get("x_path")})
 
                 await websocket.send_json(response)
 
