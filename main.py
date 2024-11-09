@@ -83,6 +83,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
                 print("Path map:", path_map[intent.upper()][next_step])
 
                 bot_message = f'Clica la opció de {path_map[intent.upper()][next_step].get("text")}'
+                print("bot_message", bot_message)
 
                 print({"x_path": path_map[intent.upper()][next_step].get("x_path")[0]})
                 pause = path_map[intent.upper()][next_step].get("pause", None)
@@ -98,7 +99,10 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
                     "command": "redirect",
                     "queueCommand": False,
                     "data": [
-                        gather_data(bot_message)
+                        {
+                            "verb": "say",
+                            "text": bot_message,
+                        }
                     ]
                 })
         except asyncio.CancelledError:
