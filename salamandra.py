@@ -12,18 +12,6 @@ tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
 # 1. Knowledge Base
 documents = [
-    "Pots pagar les multes de trànsit a la web de la Generalitat.",
-    "L'Administració ha de notificar-te la denúncia en un termini màxim de 3 mesos per a infraccions lleus i de 6 mesos per a infraccions greus o molt greus.",
-    "Tens 20 dies naturals per pagar amb una reducció del 50% després de rebre la notificació.",
-    "Si no reps la notificació, pots consultar les sancions al DOGC, BOE o butlletins oficials provincials.",
-    "Per consultar sancions al DOGC, cerca pel número del DNI.",
-    "Per consultar sancions al BOE, utilitza el sistema Cl@ve per accedir al Taulell Edictal Únic.",
-    "Pots consultar expedients de sancions en línia amb identificació digital (idCAT, idCAT Mòbil, FNMT, etc.).",
-    "Si tens certificat digital, pots subscriure't a notificacions electròniques per rebre avisos de sancions.",
-    "La multa sempre arriba al titular del vehicle. Si no conduïes, pots identificar el conductor.",
-    "Si estàs en desacord amb la sanció, pots presentar al·legacions en un termini de 20 dies naturals després de la notificació.",
-    "Si has fet el pagament i es resolen a favor teu les al·legacions, pots demanar la devolució dels ingressos indeguts.",
-    "Per obtenir més detalls, visita la pàgina oficial de la Generalitat."
 ]
 embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')  # Multilingual model suitable for Catalan
 document_embeddings = embedder.encode(documents, convert_to_tensor=False)
