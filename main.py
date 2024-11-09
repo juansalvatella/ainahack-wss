@@ -278,7 +278,18 @@ async def jambonz_status(websocket: WebSocket):
 async def store_path_map(request: Request):
     global path_map
     # Read the JSON data from the request
-    path_map = await request.json()
+    raw_data = await request.json()
+    
+    # Convert string numeric keys to integers recursively
+    def convert_keys_to_int(data):
+        if isinstance(data, dict):
+            return {int(k) if k.isdigit() else k: convert_keys_to_int(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [convert_keys_to_int(item) for item in data]
+        else:
+            return data
+
+    path_map = {k: convert_keys_to_int(v) for k, v in raw_data.items()}
     print(path_map)
     return {"message": "Data stored successfully", "data_received": path_map}
 
