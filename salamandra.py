@@ -27,7 +27,24 @@ documents = [
 embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')  # Multilingual model suitable for Catalan
 document_embeddings = embedder.encode(documents, convert_to_tensor=False)
 
-def interact_salamandra(text):
+def classify_intent(text, intents):
+    system_prompt = (
+        f'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son {",".join(intents)}. Si no té sentit cap daquestes retorna NONE com a resultat'
+    )
+    answer = interact_salamandra(text, system_prompt)
+    print(answer)
+    return answer.get("intent", "CONTINUA")
+
+def detect_confirmation(text):
+    system_prompt = (
+        'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son "CONFIRMA" si diu que sí a una pregunta, "REBUTJA" si diu que no o dubta i "CONTINUA" si no és cap de les dos'
+    )
+    answer = interact_salamandra(text, system_prompt)
+    print(answer)
+    return answer.get("intent", "CONTINUA")
+
+
+def interact_salamandra(text, system_prompt):
     # Your existing imports and variables
     headers = {
         "Accept": "application/json",
@@ -50,9 +67,6 @@ def interact_salamandra(text):
     user_message_with_context = f"{text}\n\nInformació rellevant:\n{retrieved_text}"
 
     # 7. Prepare the Messages
-    system_prompt = (
-        "Et dius Olga, respons al telèfon del 012 fora d'horari i ajudes a resoldre dubtes de la web de la generalitat"
-    )
     message = [{"role": "system", "content": system_prompt}]
     message += [{"role": "user", "content": user_message_with_context}]
 

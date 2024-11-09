@@ -9,10 +9,13 @@ from guide import get_step_by_path, path_map
 from utils import gather_data, ACTION_HOOK
 
 import salamandra
+import phrases
 from time import sleep
 
 app = FastAPI()
 executor = ThreadPoolExecutor()
+
+SELECTED_INTENT = "MULTA"
 
 # Remove module-level queue definitions
 # jambonz_queue: asyncio.Queue[Any] = asyncio.Queue()
@@ -71,22 +74,23 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
                # If the xpath is not recognized, start again
                current_step = 0
                print("pasamos a current_step a 0")
+
             if current_step or current_step == 0:
                 next_step = (current_step + 1) % 7  # Fixed operator precedence
                 print("Current step:", current_step)
                 print("Next step:", next_step)
-                print("Path map:", path_map[next_step])
+                print("Path map:", path_map[SELECTED_INTENT][next_step])
 
-                bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
+                bot_message = f'Clica la opció de {path_map[SELECTED_INTENT][next_step].get("text")}'
 
-                print({"x_path": path_map[next_step].get("x_path")[0]})
-                pause = path_map[next_step].get("pause", None)
+                print({"x_path": path_map[SELECTED_INTENT][next_step].get("x_path")[0]})
+                pause = path_map[SELECTED_INTENT][next_step].get("pause", None)
                 print("pause", pause)
                 if pause:
                     print("waiting 2s")
                     await asyncio.sleep(1.5)
 
-                await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")[0]})
+                await jambonz_queue.put({"x_path": path_map[SELECTED_INTENT][next_step].get("x_path")[0]})
 
                 await websocket.send_json({
                     "type": "command",
@@ -105,6 +109,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
 @app.websocket("/jambonz-websocket")
 async def jambonz_websocket(websocket: WebSocket):
     await websocket.accept(subprotocol="ws.jambonz.org")
+    CONVERSATION_STATUS = "START"
     # Access the queues from app.state
     jambonz_queue = websocket.app.state.jambonz_queue
     other_ws_queue = websocket.app.state.other_ws_queue
@@ -125,8 +130,8 @@ async def jambonz_websocket(websocket: WebSocket):
                     ]
                 }
 
-                print({"x_path": path_map[1].get("x_path")})
-                await jambonz_queue.put({"x_path": path_map[1].get("x_path")})
+                print({"x_path": path_map[SELECTED_INTENT][1].get("x_path")})
+                await jambonz_queue.put({"x_path": path_map[SELECTED_INTENT][1].get("x_path")})
 
                 await websocket.send_json(response)
 
@@ -137,21 +142,59 @@ async def jambonz_websocket(websocket: WebSocket):
             elif data.get("type") == "verb:hook":
                 reason = data.get("data", {}).get("reason")
                 print(data.get("data"))
+                await websocket.send_json({
+                    "type": "ack",
+                    "msgid": data.get("msgid"),
+                    "data": []
+                })
                 if reason == "speechDetected":
                     speech = data.get("data").get("speech").get("alternatives")[0].get("transcript")
                     print(speech)
 
-                    await websocket.send_json({
-                        "type": "ack",
-                        "msgid": data.get("msgid"),
-                        "data": []
-                    })
+                    if CONVERSATION_STATUS == "START":
+                        intent = classify_intent(speech, path_map.keys())
+                        SELECTED_INTENT = intent
+                        print("intent", intent)
+                        if intent != "NONE":
+                            CONVERSATION_STATUS = "USE_GOOGLE_CHROME"
+                            ANSWER = phrases.USE_GOOGLE_CHROME
+                        else:
+                            ANSWER = phrases.NO_MATCH
+                    elif CONVERSATION_STATUS == "USE_GOOGLE_CHROME":
+                        confirmation = detect_confirmation(speech)
+                        if confirmation == "CONFIRM":
+                            CONVERSATION_STATUS = "EXTENSION_INSTALLED"
+                            ANSWER = phrases.CHROME_INSTALLED
+                        elif confirmation == "REBUTJA":
+                            CONVERSATION_STATUS = "START"
+                            ANSWER = phrases.NO_CHROME_INSTALLED
+                        else:
+                            ANSWER = phrases.USE_GOOGLE_CHROME
+                    elif CONVERSATION_STATUS == "EXTENSION_INSTALLED":
+                        confirmation = detect_confirmation(speech)
+                        if confirmation == "CONFIRM":
+                            CONVERSATION_STATUS = "START_FLOW"
+                            ANSWER = phrases.START_FLOW
+                        elif confirmation == "REBUTJA":
+                            CONVERSATION_STATUS = "START"
+                            ANSWER = phrases.WHATSAPP_INSTALL
+                        else:
+                            ANSWER = phrases.CHROME_INSTALLED
+                    elif CONVERSATION_STATUS == "START_FLOW":
+                        # TODO: Just wait until events arrive
+                        pass
+
+                    print("---------------")
+                    print(CONVERSATION_STATUS)
+                    print(ANSWER)
 
                     # Additional processing as needed
-                    response_salamandra = salamandra.interact_salamandra(speech)
-                    print("---------------")
-                    print(response_salamandra)
-
+                    # system_prompt = (
+                    #     "Et dius Olga, respons al telèfon del 012 fora d'horari i ajudes a resoldre dubtes de la web de la generalitat"
+                    # )
+                    # response_salamandra = salamandra.interact_salamandra(speech, system_prompt=system_prompt)
+                    # response_salamandra.get("generated_text", "")
+                    
                     await websocket.send_json({
                         "type": "command",
                         "command": "redirect",
@@ -161,7 +204,7 @@ async def jambonz_websocket(websocket: WebSocket):
                                 "verb": "gather",
                                 "input": ["speech"],
                                 "say": {
-                                    "text": response_salamandra.get("generated_text", ""),
+                                    "text": ANSWER,
                                 },
                                 "actionHook": ACTION_HOOK
                             }
