@@ -34,6 +34,7 @@ def classify_intent(text, intents):
     )
     answer = interact_salamandra(text, system_prompt)
     response = answer.get("generated_text")
+    print("classify_intent", response)
     response_json = json.loads(response)
     return response_json.get("intent", "NONE")
 
@@ -43,6 +44,7 @@ def detect_confirmation(text):
     )
     answer = interact_salamandra(text, system_prompt)
     response = answer.get("generated_text")
+    print("detect_confirmation", response)
     response_json = json.loads(response)
     return response_json.get("intent", "CONTINUA")
 
