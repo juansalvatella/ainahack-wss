@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer
 import requests
 import os
 import numpy as np
+import json
 
 BASE_URL = "https://j292uzvvh7z6h2r4.us-east-1.aws.endpoints.huggingface.cloud"
 model_name = "BSC-LT/salamandra-7b-instruct-aina-hack"
@@ -32,17 +33,18 @@ def classify_intent(text, intents):
         'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son' + f'{",".join(intents)}. Si no té sentit cap daquestes retorna NONE com a resultat'
     )
     answer = interact_salamandra(text, system_prompt)
-    print(answer)
-    return answer.get("generated_text").get("intent", "NONE")
+    response = answer.get("generated_text")
+    response_json = json.loads(response)
+    return response_json.get("intent", "NONE")
 
 def detect_confirmation(text):
     system_prompt = (
         'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son "CONFIRMA" si confirma o diu que si, "REBUTJA" si diu que no i "CONTINUA" si no és cap de les dos'
     )
     answer = interact_salamandra(text, system_prompt)
-    print(answer.get("generated_text").keys())
-    print(answer.get("generated_text"))
-    return answer.get("generated_text").get("intent", "CONTINUA")
+    response = answer.get("generated_text")
+    response_json = json.loads(response)
+    return response_json.get("intent", "CONTINUA")
 
 
 def interact_salamandra(text, system_prompt):
