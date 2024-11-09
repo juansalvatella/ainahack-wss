@@ -12,13 +12,14 @@ tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
 # 1. Knowledge Base
 documents = [
+    'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}.'
 ]
 embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')  # Multilingual model suitable for Catalan
 document_embeddings = embedder.encode(documents, convert_to_tensor=False)
 
 def classify_intent(text, intents):
     system_prompt = (
-        'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son' + f'{",".join(intents)}. Si no té sentit cap daquestes retorna NONE com a resultat'
+        'Les intencions possibles son' + f'{",".join(intents)}. Si no té sentit cap daquestes retorna NONE com a resultat'
     )
     answer = interact_salamandra(text, system_prompt)
     response = answer.get("generated_text")
@@ -28,7 +29,7 @@ def classify_intent(text, intents):
 
 def detect_confirmation(text):
     system_prompt = (
-        'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son "CONFIRMA" si confirma o diu que si, "REBUTJA" si diu que no i "CONTINUA" si no és cap de les dos. Recorda respondre sempre amb el format JSON!'
+        'Les intencions possibles son "CONFIRMA" si confirma o diu que si, "REBUTJA" si diu que no i "CONTINUA" si no és cap de les dos. Recorda respondre sempre amb el format JSON!'
     )
     try: 
         answer = interact_salamandra(text, system_prompt)
