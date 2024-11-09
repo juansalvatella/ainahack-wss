@@ -141,18 +141,24 @@ async def jambonz_websocket(websocket: WebSocket):
                     ]
                 }
                 await websocket.send_json(response)
-                # await websocket.send_json({
-                #     "type": "command",
-                #     "command": "redirect",
-                #     "queueCommand": True,
-                #     "data": [
-                #         {
-                #             "verb": "dial",
-                #             "to": "+34618835151",
-                #             "actionHook": ACTION_HOOK
-                #         }
-                #     ]
-                # })
+
+                await websocket.send_json({
+                    "type": "command",
+                    "command": "redirect",
+                    "queueCommand": True,
+                    "data": [{
+                        "verb": "dial",
+                        "callerId": "012",
+                        "actionHook": ACTION_HOOK,
+                        "target": [
+                            {
+                            "type": "phone",
+                            "number": "+34618835151",
+                            "trunk": "Voxbone"
+                            },
+                        ]
+                    }]
+                })
 
             elif data.get("type") == "call:status":
                 # Process call status data as needed
