@@ -40,12 +40,16 @@ def classify_intent(text, intents):
 
 def detect_confirmation(text):
     system_prompt = (
-        'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son "CONFIRMA" si confirma o diu que si, "REBUTJA" si diu que no i "CONTINUA" si no és cap de les dos'
+        'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son "CONFIRMA" si confirma o diu que si, "REBUTJA" si diu que no i "CONTINUA" si no és cap de les dos. Recorda respondre sempre amb el format JSON!'
     )
-    answer = interact_salamandra(text, system_prompt)
-    response = answer.get("generated_text")
-    print("detect_confirmation", response)
-    response_json = json.loads(response)
+    try: 
+        answer = interact_salamandra(text, system_prompt)
+        response = answer.get("generated_text")
+        print("detect_confirmation", response)
+        response_json = json.loads(response)
+    except Exception as e:
+        print(e)
+        response_json = {"intent": "CONTINUA"}
     return response_json.get("intent", "CONTINUA")
 
 
