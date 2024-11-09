@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 from concurrent.futures import ThreadPoolExecutor
 
 from guide import get_step_by_path, path_map
-from utils import gather_data
+from utils import gather_data, ACTION_HOOK
 import salamandra
 
 app = FastAPI()
@@ -154,7 +154,7 @@ async def jambonz_websocket(websocket: WebSocket):
                                 "say": {
                                     "text": response_salamandra,
                                 },
-                                "actionHook": actionHook
+                                "actionHook": ACTION_HOOK
                             }
                         ]
                     })
