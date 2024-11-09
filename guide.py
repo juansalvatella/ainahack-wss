@@ -26,8 +26,8 @@ path_map = {
     }
 }
 
-def get_step_by_path(x_path):
-    for key, value in path_map.items():
+def get_step_by_path(selected_intent, x_path):
+    for key, value in path_map[selected_intent].items():
         if x_path in value["x_path"]:
             return key  # Return the key as an integer
     return None  # If not found, return None

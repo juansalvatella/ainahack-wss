@@ -69,7 +69,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
             print("message", message)
             xpath = message.get("x_path", [])
             print("XPath:", xpath)
-            current_step = get_step_by_path(xpath)
+            current_step = get_step_by_path(SELECTED_INTENT, xpath)
             if not current_step:
                # If the xpath is not recognized, start again
                current_step = 0
