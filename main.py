@@ -2,7 +2,7 @@ import asyncio
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -13,31 +13,32 @@ import salamandra
 app = FastAPI()
 executor = ThreadPoolExecutor()
 
-jambonz_queue: asyncio.Queue[Tuple[Any, WebSocket]] = asyncio.Queue()
-other_ws_queue: asyncio.Queue[Tuple[Any, WebSocket]] = asyncio.Queue()
+jambonz_queue: asyncio.Queue[Any] = asyncio.Queue()
+other_ws_queue: asyncio.Queue[Any] = asyncio.Queue()
 
 
 @app.websocket("/extension")
 async def extension_websocket(websocket: WebSocket):
     await websocket.accept()
+    jambonz_task = asyncio.Task(act_on_jambonz_command(websocket))
     try:
         while True:
             data = await websocket.receive_json()
-            await other_ws_queue.put((data, websocket))
+            await other_ws_queue.put(data)
             # await websocket.send_json(data)
     except WebSocketDisconnect:
         print("WebSocket disconnected")
     except Exception as e:
         print("Error:", e)
 
-async def act_on_jambonz_command():
+async def act_on_jambonz_command(websocket: WebSocket):
     while True:
-        jambonz_says, websocket = await jambonz_queue.get()
+        jambonz_says = await jambonz_queue.get()
         await websocket.send_json(jambonz_says)
 
-async def act_on_front_command():
+async def act_on_front_command(websocket: WebSocket):
     while True:
-        message, websocket = await other_ws_queue.get()
+        message: str = await other_ws_queue.get()
         xpath = message.get("x_path", "")
         print(xpath)
         current_step = get_step_by_path(xpath)
@@ -48,7 +49,7 @@ async def act_on_front_command():
 
         bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
 
-        await jambonz_queue.put(({"x_path": path_map[next_step].get("x_path")}, websocket))
+        await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
 
         await websocket.send_json({
             "type": "command",
@@ -63,6 +64,7 @@ async def act_on_front_command():
 async def jambonz_websocket(websocket: WebSocket):
     await websocket.accept(subprotocol="ws.jambonz.org")
     print("WebSocket connection established with Jambonz")
+    front_task = asyncio.Task(act_on_front_command(websocket))
     try:
         while True:
             # Receive JSON data from Jambonz over WebSocket
@@ -80,7 +82,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     ]
                 }
 
-                await jambonz_queue.put(({"x_path": path_map[1].get("x_path")}, websocket))
+                await jambonz_queue.put({"x_path": path_map[1].get("x_path")})
 
                 await websocket.send_json(response)
 
@@ -168,6 +170,6 @@ async def jambonz_status(websocket: WebSocket):
 @app.on_event("startup")
 async def startup_event():
     # Spawn tasks on startup
-    asyncio.create_task(act_on_front_command())
-    asyncio.create_task(act_on_jambonz_command())
+    # asyncio.create_task(background_task_1())
+    # asyncio.create_task(background_task_2())
     print("Background tasks started.")
