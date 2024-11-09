@@ -77,7 +77,7 @@ def interact_salamandra(text):
     }
     api_url = BASE_URL + "/generate"
     response = requests.post(api_url, headers=headers, json=payload)
-    print(response.json())
+    print(response.json().get("generated_text", ""))
 
 @app.websocket("/dani_test")
 async def dani_websocket(websocket: WebSocket):
