@@ -336,12 +336,12 @@ def send_whats_template(number: str, intent: str):
             "components": [{
                 "type": "button",
                 "sub_type": "url",
-                "index": "1",
+                "index": 0,
                 "parameters": [
                     {
                         "type": "text",
                         # Business Developer-defined dynamic URL suffix
-                        "text": f"http://120.86.175.34.bc.googleusercontent.com/instructions/{intent}"
+                        "text": intent
                     }
                 ]
             }],
