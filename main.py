@@ -139,25 +139,25 @@ async def jambonz_websocket(websocket: WebSocket):
                     })
 
                     # Additional processing as needed
-                    # response_salamandra = interact_salamandra(speech)
+                    response_salamandra = salamandra.interact_salamandra(speech)
                     print("---------------")
-                    # print(response_salamandra)
+                    print(response_salamandra)
 
-                    # await websocket.send_json({
-                    #     "type": "command",
-                    #     "command": "redirect",
-                    #     "queueCommand": True,
-                    #     "data": [
-                    #         {
-                    #             "verb": "gather",
-                    #             "input": ["speech"],
-                    #             "say": {
-                    #                 "text": response_salamandra,
-                    #             },
-                    #             "actionHook": actionHook
-                    #         }
-                    #     ]
-                    # })
+                    await websocket.send_json({
+                        "type": "command",
+                        "command": "redirect",
+                        "queueCommand": True,
+                        "data": [
+                            {
+                                "verb": "gather",
+                                "input": ["speech"],
+                                "say": {
+                                    "text": response_salamandra,
+                                },
+                                "actionHook": actionHook
+                            }
+                        ]
+                    })
 
     except WebSocketDisconnect:
         print("Jambonz WebSocket disconnected")
