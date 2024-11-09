@@ -95,11 +95,31 @@ class Verb(BaseModel):
     text: str = None
     # Add other fields as needed based on Jambonz verb specifications
 
+async def act_on_front_command(websocket: WebSocket):
+    while True:
+        front_says: str = await other_ws_queue.get()
+        await websocket.send_json({
+            "type": "command",
+            "command": "redirect",
+            "queueCommand": False,
+            "data": [
+                {
+                    "verb": "gather",
+                    "input": ["speech"],
+                    "say": {
+                        "text": front_says,
+                    },
+                    "actionHook": actionHook
+                }
+            ]
+        })
+
 # WebSocket endpoint to handle data from Jambonz as if it were a webhook
 @app.websocket("/jambonz-websocket")
 async def jambonz_websocket(websocket: WebSocket):
     await websocket.accept(subprotocol="ws.jambonz.org")
     print("WebSocket connection established with Jambonz")
+    front_task = asyncio.Task(act_on_front_command(websocket))
     try:
         while True:
             # Receive JSON data from Jambonz over WebSocket
