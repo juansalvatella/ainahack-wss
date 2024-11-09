@@ -118,7 +118,7 @@ async def jambonz_websocket(websocket: WebSocket):
                             "input": ["speech"],
                             "verb": "gather",
                             "say": {
-                                "text": "Això ja casi està",
+                                "text": "Hola! Em dic Olga i sóc l'assistent virtual del 012 quan ningú el pot atendre. En què el puc ajudar?",
                             },
                             "actionHook": actionHook
                         }
@@ -152,7 +152,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     await websocket.send_json({
                         "type": "command",
                         "command": "redirect",
-                        "queueCommand": True,
+                        "queueCommand": False,
                         "data": [
                             {
                                 "verb": "gather",
