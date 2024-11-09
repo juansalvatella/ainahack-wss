@@ -78,8 +78,8 @@ def interact_salamandra(text):
     response = requests.post(api_url, headers=headers, json=payload)
     return response.json().get("generated_text", "")
 
-@app.websocket("/dani_test")
-async def dani_websocket(websocket: WebSocket):
+@app.websocket("/extension")
+async def extension_websocket(websocket: WebSocket):
     await websocket.accept()
     try:
         while True:
@@ -168,6 +168,7 @@ async def jambonz_websocket(websocket: WebSocket):
         print("WebSocket disconnected")
     except Exception as e:
         print("Error:", e)
+
 
 @app.websocket("/jambonz-status")
 async def jambonz_status(websocket: WebSocket):
