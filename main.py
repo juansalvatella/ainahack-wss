@@ -354,4 +354,4 @@ def send_whats_template(number: str, intent: str):
     }
     # 2 - Request and response
     response = requests.post(url, headers=headers, json=payload)
-    print(response)
+    print(response.content)
