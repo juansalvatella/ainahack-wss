@@ -144,6 +144,10 @@ async def jambonz_websocket(websocket: WebSocket):
                         ]
                     })
 
+                    response_salamandra = interact_salamandra(speech)
+                    print("---------------")
+                    print(response_salamandra)
+
                     await websocket.send_json({
                         "type": "command",
                         "command": "redirect",
@@ -153,7 +157,7 @@ async def jambonz_websocket(websocket: WebSocket):
                                 "verb": "gather",
                                 "input": ["speech"],
                                 "say": {
-                                    "text": interact_salamandra(speech),
+                                    "text": response_salamandra,
                                 },
                                 "actionHook": actionHook
                             }
