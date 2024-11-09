@@ -15,7 +15,7 @@ from time import sleep
 app = FastAPI()
 executor = ThreadPoolExecutor()
 
-DEFAULT_INTENT = "MULTA"
+stored_intent = "MULTA"
 
 # Remove module-level queue definitions
 # jambonz_queue: asyncio.Queue[Any] = asyncio.Queue()
@@ -26,7 +26,7 @@ async def startup_event():
     # Create the queues within the application's event loop
     app.state.jambonz_queue = asyncio.Queue()
     app.state.other_ws_queue = asyncio.Queue()
-    app.state.selected_intent = DEFAULT_INTENT
+    # app.state.selected_intent = DETECTED_INTENT
     print("Queues created and background tasks started.")
 
 @app.websocket("/extension")
@@ -52,7 +52,7 @@ async def extension_websocket(websocket: WebSocket):
         except asyncio.CancelledError:
             pass
 
-async def act_on_jambonz_command(websocket: WebSocket, jambonz_queue):
+async def act_on_jambonz_command(websocket: WebSocket, jambonz_queue: asyncio.Queue):
     while True:
         try:
             jambonz_says = await jambonz_queue.get()
@@ -63,14 +63,15 @@ async def act_on_jambonz_command(websocket: WebSocket, jambonz_queue):
         except Exception as e:
             print("Error in act_on_jambonz_command:", e)
 
-async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_queue, intent):
+async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_queue):
+    global stored_intent
     while True:
         try:
             message = await other_ws_queue.get()
             print("message", message)
             xpath = message.get("x_path", [])
             print("XPath:", xpath)
-            current_step = get_step_by_path(intent.upper(), xpath, path_map)
+            current_step = get_step_by_path(stored_intent.upper(), xpath, path_map)
             if not current_step:
                # If the xpath is not recognized, start again
                current_step = 0
@@ -80,19 +81,19 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
                 next_step = (current_step + 1) % 7  # Fixed operator precedence
                 print("Current step:", current_step)
                 print("Next step:", next_step)
-                print("Path map:", path_map[intent.upper()][next_step])
+                print("Path map:", path_map[stored_intent.upper()][next_step])
 
-                bot_message = f'Clica la opció de {path_map[intent.upper()][next_step].get("text")}'
+                bot_message = f'Clica la opció de {path_map[stored_intent.upper()][next_step].get("text")}'
                 print("bot_message", bot_message)
 
-                print({"x_path": path_map[intent.upper()][next_step].get("x_path")[0]})
-                pause = path_map[intent.upper()][next_step].get("pause", None)
+                print({"x_path": path_map[stored_intent.upper()][next_step].get("x_path")[0]})
+                pause = path_map[stored_intent.upper()][next_step].get("pause", None)
                 print("pause", pause)
                 if pause:
                     print("waiting 2s")
                     await asyncio.sleep(1.5)
 
-                await jambonz_queue.put({"x_path": path_map[intent.upper()][next_step].get("x_path")[0]})
+                await jambonz_queue.put({"x_path": path_map[stored_intent.upper()][next_step].get("x_path")[0]})
 
                 await websocket.send_json({
                     "type": "command",
@@ -114,14 +115,14 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
 @app.websocket("/jambonz-websocket")
 async def jambonz_websocket(websocket: WebSocket):
     await websocket.accept(subprotocol="ws.jambonz.org")
+    global stored_intent
     CONVERSATION_STATUS = "START"
     # Access the queues from app.state
     jambonz_queue = websocket.app.state.jambonz_queue
     other_ws_queue = websocket.app.state.other_ws_queue
-    intent = DEFAULT_INTENT
     print("WebSocket connection established with Jambonz")
     # Start the task to process messages from other_ws_queue
-    front_task = asyncio.create_task(act_on_front_command(websocket, other_ws_queue, jambonz_queue, intent))
+    front_task = asyncio.create_task(act_on_front_command(websocket, other_ws_queue, jambonz_queue))
     try:
         while True:
             data = await websocket.receive_json()
@@ -158,7 +159,7 @@ async def jambonz_websocket(websocket: WebSocket):
                         detected_intent = salamandra.classify_intent(speech, path_map.keys())
                         print("detected_intent", detected_intent.upper())
                         if detected_intent != "NONE":
-                            intent = detected_intent.upper()
+                            stored_intent = detected_intent.upper()
                             CONVERSATION_STATUS = "USE_GOOGLE_CHROME"
                             ANSWER = phrases.USE_GOOGLE_CHROME
                         else:
@@ -179,7 +180,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     print("---------------")
                     print("CONVERSATION_STATUS",CONVERSATION_STATUS)
                     if CONVERSATION_STATUS == "START_FLOW":
-                        print({"x_path": path_map[intent.upper()][1].get("x_path")})
+                        print({"x_path": path_map[stored_intent.upper()][1].get("x_path")})
                         await websocket.send_json({
                             "type": "command",
                             "command": "redirect",
@@ -192,7 +193,7 @@ async def jambonz_websocket(websocket: WebSocket):
                             ]
                         })
                         await asyncio.sleep(3)
-                        await jambonz_queue.put({"x_path": path_map[intent.upper()][1].get("x_path")})
+                        await jambonz_queue.put({"x_path": path_map[stored_intent.upper()][1].get("x_path")})
                     else:
                         await websocket.send_json({
                             "type": "command",
