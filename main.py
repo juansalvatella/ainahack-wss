@@ -34,6 +34,7 @@ document_embeddings = embedder.encode(documents, convert_to_tensor=False)
 
 def interact_salamandra(text):
     # Your existing imports and variables
+    print(os.getenv("HF_TOKEN", ""))
     headers = {
         "Accept": "application/json",
         "Authorization": f'Bearer {os.getenv("HF_TOKEN", "")}',
