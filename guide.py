@@ -26,22 +26,22 @@ path_map = {
     }
 }
 
-def get_step_by_path(selected_intent, x_path):
+def get_step_by_path(selected_intent, x_path, path_map):
     for key, value in path_map[selected_intent].items():
         if x_path in value["x_path"]:
             return key  # Return the key as an integer
     return None  # If not found, return None
 
-def handle_message(ws, message):
-    try:
-        test_res = {
-            "x_path": path_map[1]["x_path"],
-        }
-        data = json.loads(message)
-        if "x_path" in data:
-            step = get_step_by_path(data["x_path"])
-            if step:
-                test_res["x_path"] = path_map[step]["x_path"]
-        ws.send(json.dumps(test_res))
-    except Exception as err:
-        print("Error parsing message:", err)
+# def handle_message(ws, message):
+#     try:
+#         test_res = {
+#             "x_path": path_map[1]["x_path"],
+#         }
+#         data = json.loads(message)
+#         if "x_path" in data:
+#             step = get_step_by_path(data["x_path"])
+#             if step:
+#                 test_res["x_path"] = path_map[step]["x_path"]
+#         ws.send(json.dumps(test_res))
+#     except Exception as err:
+#         print("Error parsing message:", err)

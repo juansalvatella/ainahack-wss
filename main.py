@@ -70,7 +70,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
             print("message", message)
             xpath = message.get("x_path", [])
             print("XPath:", xpath)
-            current_step = get_step_by_path(intent.upper(), xpath)
+            current_step = get_step_by_path(intent.upper(), xpath, path_map)
             if not current_step:
                # If the xpath is not recognized, start again
                current_step = 0
@@ -257,3 +257,10 @@ async def jambonz_status(websocket: WebSocket):
         print("WebSocket disconnected")
     except Exception as e:
         print("Error:", e)
+
+@app.post("/store_path_map")
+async def store_path_map(request: Request):
+    global path_map
+    # Read the JSON data from the request
+    path_map = await request.json()
+    return {"message": "Data stored successfully", "data_received": stored_data}
