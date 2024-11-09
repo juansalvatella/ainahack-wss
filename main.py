@@ -37,18 +37,18 @@ async def extension_websocket(websocket: WebSocket):
             pass
 
 async def act_on_jambonz_command(websocket: WebSocket):
-    try:
-        while True:
+    while True:
+        try:
             jambonz_says = await jambonz_queue.get()
             await websocket.send_json(jambonz_says)
-    except asyncio.CancelledError:
-        print("act_on_jambonz_command task cancelled")
-    except Exception as e:
-        print("Error in act_on_jambonz_command:", e)
+        except asyncio.CancelledError:
+            print("act_on_jambonz_command task cancelled")
+        except Exception as e:
+            print("Error in act_on_jambonz_command:", e)
 
 async def act_on_front_command(websocket: WebSocket):
-    try:
-        while True:
+    while True:
+        try:
             message = await other_ws_queue.get()
             xpath = message.get("x_path", "")
             print("XPath:", xpath)
@@ -70,10 +70,10 @@ async def act_on_front_command(websocket: WebSocket):
                     gather_data(bot_message)
                 ]
             })
-    except asyncio.CancelledError:
-        print("act_on_front_command task cancelled")
-    except Exception as e:
-        print("Error in act_on_front_command:", e)
+        except asyncio.CancelledError:
+            print("act_on_front_command task cancelled")
+        except Exception as e:
+            print("Error in act_on_front_command:", e)
 
 @app.websocket("/jambonz-websocket")
 async def jambonz_websocket(websocket: WebSocket):
