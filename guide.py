@@ -14,8 +14,9 @@ path_map = {
     4: {
         "x_path": '/html/body/div/header/div/div/div/div[2]/nav/div/div/ul/li[5]/div/div[2]/div/div/div/div[2]/div/div/div/ul/li[6]/div/div/div[2]/div/div/div/ul/li/div/div/div[2]/div/div/div/ul/li[2]/p/a',
         "text": 'Accedeix a "Em posen una multa de trànsit"',
+        "pause": True
     },
-    5: {"x_path": '/html/body/main/section/article/div/div/div/div/div[3]/div/div/div/p/a', "text": "consultar-la i fer el pagament"},
+    5: {"x_path": '/html/body/main/section/article/div/div/div/div/div[3]/div/div/div/p/a', "text": "consultar-la i fer el pagament", "pause": True},
     6: {"x_path": '/html/body/main/section/article/div/div/div/div/div/div[4]/div/div[2]/div/div/div/a', "text": "Inicia"},
 }
 

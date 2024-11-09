@@ -7,7 +7,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 from guide import get_step_by_path, path_map
 from utils import gather_data, ACTION_HOOK
+
 import salamandra
+from time import sleep
 
 app = FastAPI()
 executor = ThreadPoolExecutor()
@@ -77,6 +79,11 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
                 bot_message = f'Clica la opció de {path_map[next_step].get("text")}'
 
                 print({"x_path": path_map[next_step].get("x_path")})
+                pause = path_map[next_step].get("pause", None)
+                if pause:
+                    print("waiting 2s")
+                    await asyncio.sleep(2)
+
                 await jambonz_queue.put({"x_path": path_map[next_step].get("x_path")})
 
                 await websocket.send_json({
