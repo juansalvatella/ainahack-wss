@@ -181,6 +181,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     print("---------------")
                     print("CONVERSATION_STATUS",CONVERSATION_STATUS)
                     if CONVERSATION_STATUS == "START_FLOW":
+                        CONVERSATION_STATUS = "IN_FLOW"
                         print({"x_path": path_map[stored_intent.upper()][1].get("x_path")})
                         await websocket.send_json({
                             "type": "command",
