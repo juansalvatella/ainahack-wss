@@ -1,5 +1,6 @@
 import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
@@ -254,3 +255,16 @@ async def store_path_map(request: Request):
     # Read the JSON data from the request
     path_map = await request.json()
     return {"message": "Data stored successfully", "data_received": path_map}
+
+@app.get("/instructions/{intent_id}", response_class=HTMLResponse)
+async def get_instructions(intent_id: str):
+    global path_map
+    intent_key = intent_id.upper()
+    message = "<html><body>\n"
+    if intent_key in path_map:
+        for _, step in path_map[intent_key].items():
+            message += f'<p>Clica la opció de {step.get("text")}</p>\n'
+    else:
+        message += "<p>Intent ID not found.</p>\n"
+    message += "</body></html>"
+    return message
