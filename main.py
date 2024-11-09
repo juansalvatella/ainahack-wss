@@ -70,7 +70,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
             print("message", message)
             xpath = message.get("x_path", [])
             print("XPath:", xpath)
-            current_step = get_step_by_path(intent, xpath)
+            current_step = get_step_by_path(intent.upper(), xpath)
             if not current_step:
                # If the xpath is not recognized, start again
                current_step = 0
@@ -80,18 +80,18 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
                 next_step = (current_step + 1) % 7  # Fixed operator precedence
                 print("Current step:", current_step)
                 print("Next step:", next_step)
-                print("Path map:", path_map[intent][next_step])
+                print("Path map:", path_map[intent.upper()][next_step])
 
-                bot_message = f'Clica la opció de {path_map[intent][next_step].get("text")}'
+                bot_message = f'Clica la opció de {path_map[intent.upper()][next_step].get("text")}'
 
-                print({"x_path": path_map[intent][next_step].get("x_path")[0]})
-                pause = path_map[intent][next_step].get("pause", None)
+                print({"x_path": path_map[intent.upper()][next_step].get("x_path")[0]})
+                pause = path_map[intent.upper()][next_step].get("pause", None)
                 print("pause", pause)
                 if pause:
                     print("waiting 2s")
                     await asyncio.sleep(1.5)
 
-                await jambonz_queue.put({"x_path": path_map[intent][next_step].get("x_path")[0]})
+                await jambonz_queue.put({"x_path": path_map[intent.upper()][next_step].get("x_path")[0]})
 
                 await websocket.send_json({
                     "type": "command",
@@ -152,9 +152,9 @@ async def jambonz_websocket(websocket: WebSocket):
 
                     if CONVERSATION_STATUS == "START":
                         detected_intent = salamandra.classify_intent(speech, path_map.keys())
-                        print("detected_intent", detected_intent)
+                        print("detected_intent", detected_intent.upper())
                         if detected_intent != "NONE":
-                            intent = detected_intent
+                            intent = detected_intent.upper()
                             CONVERSATION_STATUS = "USE_GOOGLE_CHROME"
                             ANSWER = phrases.USE_GOOGLE_CHROME
                         else:
@@ -175,8 +175,8 @@ async def jambonz_websocket(websocket: WebSocket):
                         if confirmation == "CONFIRMA":
                             CONVERSATION_STATUS = "START_FLOW"
                             ANSWER = phrases.START_FLOW
-                            print({"x_path": path_map[intent][1].get("x_path")})
-                            await jambonz_queue.put({"x_path": path_map[intent][1].get("x_path")})
+                            print({"x_path": path_map[intent.upper()][1].get("x_path")})
+                            await jambonz_queue.put({"x_path": path_map[intent.upper()][1].get("x_path")})
                         elif confirmation == "REBUTJA":
                             CONVERSATION_STATUS = "START"
                             ANSWER = phrases.WHATSAPP_INSTALL
