@@ -166,7 +166,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     elif CONVERSATION_STATUS == "USE_GOOGLE_CHROME":
                         confirmation = salamandra.detect_confirmation(speech)
                         print("confirmation", confirmation)
-                        if confirmation == "CONFIRM":
+                        if confirmation == "CONFIRMA":
                             CONVERSATION_STATUS = "EXTENSION_INSTALLED"
                             ANSWER = phrases.CHROME_INSTALLED
                         elif confirmation == "REBUTJA":
@@ -176,7 +176,7 @@ async def jambonz_websocket(websocket: WebSocket):
                             ANSWER = phrases.USE_GOOGLE_CHROME
                     elif CONVERSATION_STATUS == "EXTENSION_INSTALLED":
                         confirmation = salamandra.detect_confirmation(speech)
-                        if confirmation == "CONFIRM":
+                        if confirmation == "CONFIRMA":
                             CONVERSATION_STATUS = "START_FLOW"
                             ANSWER = phrases.START_FLOW
                         elif confirmation == "REBUTJA":
