@@ -120,6 +120,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
 async def jambonz_websocket(websocket: WebSocket):
     await websocket.accept(subprotocol="ws.jambonz.org")
     global stored_intent
+    global path_map
     CONVERSATION_STATUS = "START"
     # Access the queues from app.state
     jambonz_queue = websocket.app.state.jambonz_queue
