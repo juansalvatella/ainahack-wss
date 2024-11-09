@@ -318,7 +318,8 @@ async def get_instructions(intent_id: str):
     message = "<html><body>\n"
     if intent_key in path_map:
         for _, step in path_map[intent_key].items():
-            message += f'<p>Clica la opció de {step.get("text")}</p>\n'
+            if step.get("text"):
+                message += f'<p>Clica la opció de {step.get("text")}</p>\n'
     else:
         message += "<p>Intent ID not found.</p>\n"
     message += "</body></html>"
