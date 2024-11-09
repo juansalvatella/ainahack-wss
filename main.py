@@ -69,7 +69,8 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
             current_step = get_step_by_path(xpath)
             if not current_step:
                # If the xpath is not recognized, start again
-               current_step = 0 
+               current_step = 0
+               print("pasamos a current_step a 0")
             if current_step:
                 next_step = (current_step + 1) % 7  # Fixed operator precedence
                 print("Current step:", current_step)
@@ -80,7 +81,7 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
 
                 print({"x_path": path_map[next_step].get("x_path")})
                 pause = path_map[next_step].get("pause", None)
-                print("pause",pause)
+                print("pause", pause)
                 if pause:
                     print("waiting 2s")
                     await asyncio.sleep(2)
