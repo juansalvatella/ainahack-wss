@@ -331,7 +331,7 @@ def send_whats_template(number: str, intent: str):
         "to": number,
         "type": "template",
         "template": {
-            "language": {"policy": "deterministic", "code": "ca_ES"},
+            "language": {"policy": "deterministic", "code": "ca"},
             "name": "ainahack",
             "components": [{
                 "type": "button",
