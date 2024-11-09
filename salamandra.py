@@ -20,6 +20,7 @@ document_embeddings = embedder.encode(documents, convert_to_tensor=False)
 
 def classify_intent(text, intents):
     system_prompt = (
+        "Ets un assistent que ajuda a la gent a fer trámits per internet. Lo important ara és entendre la intenció de l'usuari."
         'Les intencions possibles son' + f'{",".join(intents)}. Si no té sentit cap daquestes retorna NONE com a resultat'
     )
     answer = interact_salamandra(text, system_prompt)
