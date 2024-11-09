@@ -29,6 +29,7 @@ documents = [
     "A la web de la generalitat pots pagar les multes de tràsit",
     "Es pot pagar amb tarjeta de crèdit o domiciliació bancaria",
 ]
+embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')  # Multilingual model suitable for Catalan
 document_embeddings = embedder.encode(documents, convert_to_tensor=False)
 
 def interact_salamandra(text):
