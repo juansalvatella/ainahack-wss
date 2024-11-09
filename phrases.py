@@ -5,4 +5,4 @@ USE_GOOGLE_CHROME = "No es preocupi que ara ens hi posem. Primer de tot, em pot 
 CHROME_INSTALLED = "Te instal·lada la extensió de Crom de l'assistent virtual Avia?"
 NO_CHROME_INSTALLED = "Malauradament no el puc ajudar. Si us plau, posi's en contacte més endavant i l'atendrà un company o una companya"
 WHATSAPP_INSTALL = "No es preocupi, ara li envio un WhatsApp amb les instruccions per a fer-ho."
-START_FLOW = "Perfecte, ara l'aniré guiant per tot el procés."
+START_FLOW = "Perfecte, ara l'aniré guiant per tot el procés amb indicars sobre la pantalla."
