@@ -29,7 +29,7 @@ document_embeddings = embedder.encode(documents, convert_to_tensor=False)
 
 def classify_intent(text, intents):
     system_prompt = (
-        f'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son {",".join(intents)}. Si no té sentit cap daquestes retorna NONE com a resultat'
+        'Respon sempre amb aquest format JSON: {"intent": "nom_de_la_intencio"}. Les intencions possibles son' + f'{",".join(intents)}. Si no té sentit cap daquestes retorna NONE com a resultat'
     )
     answer = interact_salamandra(text, system_prompt)
     print(answer)
