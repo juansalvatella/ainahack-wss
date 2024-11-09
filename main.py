@@ -20,7 +20,6 @@ memory = []
 
 actionHook = "ws://120.86.175.34.bc.googleusercontent.com/jambonz-websocket"
 
-HF_TOKEN = os.getenv("HF_TOKEN", "")
 BASE_URL = "https://j292uzvvh7z6h2r4.us-east-1.aws.endpoints.huggingface.cloud"
 model_name = "BSC-LT/salamandra-7b-instruct-aina-hack"
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
@@ -37,7 +36,7 @@ def interact_salamandra(text):
     # Your existing imports and variables
     headers = {
         "Accept": "application/json",
-        "Authorization": f"Bearer {HF_TOKEN}",
+        "Authorization": f"Bearer {os.getenv("HF_TOKEN", "")}",
         "Content-Type": "application/json"
     }
 
