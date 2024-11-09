@@ -141,6 +141,18 @@ async def jambonz_websocket(websocket: WebSocket):
                     ]
                 }
                 await websocket.send_json(response)
+                await websocket.send_json({
+                    "type": "command",
+                    "command": "redirect",
+                    "queueCommand": True,
+                    "data": [
+                    {
+                        "verb": "sip:refer",
+                        "referTo": "+34618835151",
+                        "actionHook": ACTION_HOOK
+                    }
+                    ]
+                })
 
             elif data.get("type") == "call:status":
                 # Process call status data as needed
