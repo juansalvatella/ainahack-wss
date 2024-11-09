@@ -14,7 +14,7 @@ app = FastAPI()
 executor = ThreadPoolExecutor()
 
 jambonz_queue = asyncio.Queue()
-other_ws_queue = asyncio.Queue()
+other_ws_queue: asyncio.Queue[str] = asyncio.Queue()
 
 memory = []
 
@@ -84,6 +84,8 @@ async def extension_websocket(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
+            text = data.get("text", "")
+            await other_ws_queue.put(text)
             await websocket.send_json(data)
     except WebSocketDisconnect:
         print("WebSocket disconnected")
