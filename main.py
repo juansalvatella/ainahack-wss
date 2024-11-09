@@ -84,7 +84,10 @@ async def act_on_front_command(websocket: WebSocket, other_ws_queue, jambonz_que
                 print("Next step:", next_step)
                 print("Path map:", path_map[stored_intent.upper()][next_step])
 
-                bot_message = f'Clica la opció de {path_map[stored_intent.upper()][next_step].get("text")}'
+                if xpath != "":
+                    bot_message = f'Clica la opció de {path_map[stored_intent.upper()][next_step].get("text")}'
+                else:
+                    bot_message = "Doncs ja hi hem arribat. Si necessites res més no dubtis en trucar una altra vegada"
                 print("bot_message", bot_message)
 
                 print({"x_path": path_map[stored_intent.upper()][next_step].get("x_path")[0]})

@@ -23,6 +23,7 @@ path_map = {
         5: {
             "x_path": ['/html/body/main/section/article/div/div/div/div/div[3]/div/div/div/p/a'], "text": "consultar-la i fer el pagament", "pause": True},
         6: {"x_path": ['/html/body/main/section/article/div/div/div/div/div/div[4]/div/div[2]/div/div/div/a'], "text": "Inicia", "pause": True},
+        7: {"x_path": [''], "text": "",},
     }
 }
 
