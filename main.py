@@ -1,9 +1,10 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel
-from typing import List, Dict, Any
 import asyncio
 import requests
 import os
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from pydantic import BaseModel
+from typing import List, Dict, Any
 from transformers import AutoTokenizer
 from sentence_transformers import SentenceTransformer
 import numpy as np
@@ -23,6 +24,7 @@ HF_TOKEN = os.getenv("HF_TOKEN", "")
 BASE_URL = "https://j292uzvvh7z6h2r4.us-east-1.aws.endpoints.huggingface.cloud"
 model_name = "BSC-LT/salamandra-7b-instruct-aina-hack"
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+print("tokenizer")
 
 # 1. Knowledge Base
 documents = [
@@ -30,11 +32,12 @@ documents = [
     "Es pot pagar amb tarjeta de crèdit o domiciliació bancaria",
 ]
 embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')  # Multilingual model suitable for Catalan
+print("embedder")
 document_embeddings = embedder.encode(documents, convert_to_tensor=False)
+print("document_embeddings")
 
 def interact_salamandra(text):
     # Your existing imports and variables
-
     headers = {
         "Accept": "application/json",
         "Authorization": f"Bearer {HF_TOKEN}",
