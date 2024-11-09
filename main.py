@@ -83,6 +83,7 @@ def interact_salamandra(text):
 @app.websocket("/extension")
 async def extension_websocket(websocket: WebSocket):
     await websocket.accept()
+    jambonz_task = asyncio.Task(act_on_jambonz_command(websocket))
     try:
         while True:
             data = await websocket.receive_json()
