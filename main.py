@@ -152,7 +152,7 @@ async def jambonz_websocket(websocket: WebSocket):
                     await websocket.send_json({
                         "type": "command",
                         "command": "redirect",
-                        "queueCommand": False,
+                        # "queueCommand": False,
                         "data": [
                             {
                                 "verb": "gather",
