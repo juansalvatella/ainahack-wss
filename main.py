@@ -141,10 +141,6 @@ async def jambonz_websocket(websocket: WebSocket):
                         "type": "ack",
                         "msgid": data.get("msgid"),
                         "data": [
-                            {
-                                "verb": "say",
-                                "text": "Dona'm un segon que reviso la documentació",
-                            }
                         ]
                     })
 
